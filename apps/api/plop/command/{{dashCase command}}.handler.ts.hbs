@@ -1,0 +1,12 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { {{command}}Command } from './{{dashCase command}}.command';
+
+@CommandHandler({{command}}Command)
+export class {{command}}CommandHandler implements ICommandHandler<{{command}}Command, void> {
+  constructor() {}
+
+  async execute(command: {{command}}Command): Promise<void> {
+    const {} = command;
+  }
+}

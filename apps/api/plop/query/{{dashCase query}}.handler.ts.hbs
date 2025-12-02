@@ -1,0 +1,17 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
+
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+
+import { {{query}}Query } from './{{dashCase query}}.query';
+
+@QueryHandler({{query}}Query)
+export class {{query}}QueryHandler implements IQueryHandler<{{query}}Query, void> {
+  @InjectMapper() mapper: Mapper;
+
+  constructor() {}
+
+  async execute(query: {{query}}Query): Promise<void> {
+    const {} = query;
+  }
+}

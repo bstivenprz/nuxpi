@@ -1,0 +1,16 @@
+import { Controller } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+@ApiBearerAuth()
+@ApiTags('{{controller}}')
+@Controller({
+  path: '{{dashCase controller}}',
+  version: '1',
+})
+export class {{controller}}ControllerV1 {
+  constructor(
+    private readonly commnadBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
+}

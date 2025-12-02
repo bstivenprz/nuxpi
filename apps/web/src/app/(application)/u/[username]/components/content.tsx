@@ -1,0 +1,45 @@
+"use client";
+
+import { Tab, Tabs } from "@heroui/tabs";
+
+import { Collection } from "./collection";
+import { Favorites } from "./favorites";
+import { Multimedia } from "./multimedia";
+import { Publications } from "./publications";
+
+export function Content({ isOwner }: { isOwner?: boolean }) {
+  return (
+    <Tabs
+      classNames={{
+        base: "mt-2",
+        tab: "font-semibold data-[hover-unselected=true]:opacity-hover",
+      }}
+      variant="underlined"
+      fullWidth
+    >
+      <Tab
+        className="px-3"
+        title={isOwner ? "Tus publicaciones" : "Publicaciones"}
+      >
+        <Publications />
+      </Tab>
+
+      {!isOwner && (
+        <Tab className="px-3" title="Multimedia">
+          <Multimedia />
+        </Tab>
+      )}
+
+      {isOwner && (
+        <>
+          <Tab className="px-3" title="Comprado">
+            <Collection />
+          </Tab>
+          <Tab className="px-3" title="Te gusta">
+            <Favorites />
+          </Tab>
+        </>
+      )}
+    </Tabs>
+  );
+}

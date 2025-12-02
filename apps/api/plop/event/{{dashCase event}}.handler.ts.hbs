@@ -1,0 +1,20 @@
+import { Logger } from '@nestjs/common';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+
+import { {{event}}Event } from './{{dashCase event}}.event';
+
+@EventsHandler({{event}}Event)
+export class {{event}}EventHandler implements IEventHandler<{{event}}Event> {
+  private logger = new Logger({{event}}EventHandler.name);
+
+  constructor() {}
+
+  async handle(event: {{event}}Event) {
+    try {
+      this.logger.log(`Handling event: ${ {{event}}Event.name}`);
+      const {} = event;
+    } catch (error) {
+      this.logger.error(`Error handling event: ${ {{event}}Event.name}`, error);
+    }
+  }
+}

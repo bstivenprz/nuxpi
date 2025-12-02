@@ -1,0 +1,5 @@
+import { Entity } from 'typeorm';
+import { AuditableEntity } from '@/shared/models/auditable-entity';
+
+@Entity('{{tableName}}')
+export class {{entity}}Entity extends AuditableEntity {}
