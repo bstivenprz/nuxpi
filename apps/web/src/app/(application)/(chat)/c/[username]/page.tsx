@@ -35,58 +35,55 @@ export default function Chat() {
       sendMessageWs(message);
       return message;
     },
-    onMutate: async (message) => {
-      if (!conversation?.id) return;
+    // onMutate: async (message) => {
+    //   if (!conversation?.id) return;
 
-      const queryKey = ["messages", conversation.id];
+    //   const queryKey = ["messages", conversation.id];
 
-      await queryClient.cancelQueries({ queryKey });
-      const previousMessages =
-        queryClient.getQueryData<PaginationObject<MessageObject>>(queryKey);
+    //   await queryClient.cancelQueries({ queryKey });
+    //   const previousMessages =
+    //     queryClient.getQueryData<PaginationObject<MessageObject>>(queryKey);
 
-      if (!previousMessages) return { previousMessages };
+    //   if (!previousMessages) return { previousMessages };
 
-      const fallbackSender =
-        previousMessages.data.find((m) => m.is_owner)?.sender ?? {
-          name: "You",
-          username: "you",
-          presentation: "",
-          gender: "prefer_not_say",
-          is_following: false,
-          is_owner: true,
-        };
+    //   const fallbackSender =
+    //     previousMessages.data.find((m) => m.is_owner)?.sender ?? {
+    //       name: "You",
+    //       username: "you",
+    //       presentation: "",
+    //       gender: "prefer_not_say",
+    //       is_following: false,
+    //       is_owner: true,
+    //     };
 
-      const optimisticMessage: MessageObject = {
-        type: "text",
-        content: message,
-        sender: fallbackSender,
-        is_owner: true,
-      };
+    //   const optimisticMessage: MessageObject = {
+    //     type: "text",
+    //     content: message,
+    //     sender: fallbackSender,
+    //     is_owner: true,
+    //   };
 
-      queryClient.setQueryData<PaginationObject<MessageObject>>(queryKey, {
-        ...previousMessages,
-        data: [optimisticMessage, ...(previousMessages.data ?? [])],
-        meta: previousMessages.meta
-          ? {
-              ...previousMessages.meta,
-              total_count: previousMessages.meta.total_count + 1,
-            }
-          : previousMessages.meta,
-      });
+    //   queryClient.setQueryData<PaginationObject<MessageObject>>(queryKey, {
+    //     ...previousMessages,
+    //     data: [optimisticMessage, ...(previousMessages.data ?? [])],
+    //     meta: previousMessages.meta
+    //       ? {
+    //           ...previousMessages.meta,
+    //           total_count: previousMessages.meta.total_count + 1,
+    //         }
+    //       : previousMessages.meta,
+    //   });
 
-      return { previousMessages };
-    },
-    onError: (_err, _variables, context) => {
-      if (context?.previousMessages && conversation?.id) {
-        queryClient.setQueryData(
-          ["messages", conversation.id],
-          context.previousMessages,
-        );
-      }
-    },
-    onSettled: () => {
-      // Live updates handled via websocket; no need to invalidate here.
-    },
+    //   return { previousMessages };
+    // },
+    // onError: (_err, _variables, context) => {
+    //   if (context?.previousMessages && conversation?.id) {
+    //     queryClient.setQueryData(
+    //       ["messages", conversation.id],
+    //       context.previousMessages,
+    //     );
+    //   }
+    // },
   });
 
   function send(message: string) {
@@ -102,12 +99,12 @@ export default function Chat() {
       <Header
         startContent={
           <div>
-            <Avatar size="sm" />
+            <Avatar size="sm" src={conversation.participant.picture} />
           </div>
         }
         disableScrollHide
       >
-        Brandon
+        {conversation.participant.name}
       </Header>
 
       <Messages conversation={conversation.id} />

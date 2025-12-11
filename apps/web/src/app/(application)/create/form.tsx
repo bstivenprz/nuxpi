@@ -2,35 +2,59 @@
 
 import { FormProvider, useForm } from "react-hook-form";
 
-import { Avatar } from "@heroui/react";
+import { Alert, Avatar } from "@heroui/react";
 
-import { Actions } from "./actions";
+import { Tools } from "./tools";
 import { Caption } from "./caption";
-import { DEFAULT_SELECTED_PRIVACY, Footer } from "./footer";
-import { type CreateForm } from "./types";
+import { Footer } from "./footer";
+import { useActionState } from "react";
+import { createPublicationAction } from "./actions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { schema } from "./schema";
+import { useAuthenticated } from "@/hooks/use-authenticated";
+import { MultimediaPreview } from "./multimedia-preview";
 
 export function CreatePublicationForm() {
-  const form = useForm<CreateForm>({
-    defaultValues: {
-      caption: "",
-      comments_privacy: DEFAULT_SELECTED_PRIVACY,
-    },
-  });
+  const profile = useAuthenticated();
 
-  async function onSubmit({}: CreateForm) {}
+  const [state, formAction, isPending] = useActionState(
+    createPublicationAction,
+    undefined
+  );
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+  });
 
   return (
     <FormProvider {...form}>
-      <form className="flex gap-3" onSubmit={form.handleSubmit(onSubmit)}>
-        <div>
-          <Avatar />
+      {state?.success === false && (
+        <Alert
+          color="danger"
+          title="Tuvimos un problema"
+          description={state?.error}
+        />
+      )}
+
+      <form className="space-y-6" action={formAction}>
+        <div className="flex gap-3">
+          <div>
+            <Avatar src={profile?.picture} />
+          </div>
+
+          <div className="grow">
+            <Caption />
+            <Tools />
+            {form.formState.errors && (
+              <div className="text-tiny text-danger">
+                {form.formState.errors.root?.message}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="relative space-y-1 w-full">
-          <Caption />
-          <Actions />
-          <Footer />
-        </div>
+        <MultimediaPreview />
+        <Footer isPending={isPending} />
       </form>
     </FormProvider>
   );

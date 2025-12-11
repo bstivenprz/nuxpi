@@ -2,23 +2,25 @@
 
 import Link from "next/link";
 
-import { Avatar, Button } from "@heroui/react";
+import { Avatar,  } from "@heroui/react";
 
 import { numberFormat } from "@/utils/number-format";
-
-type AccountCardProps = {
-  displayName: string;
-  username: string;
-  picture?: string;
-  followers?: number;
-};
+import { FollowButton } from "./follow-button";
+import { useState } from "react";
 
 export function AccountCard({
-  displayName = "{displayName}",
-  username = "username",
-  followers = 0,
+  name,
+  username,
+  followers: initialState,
   picture,
-}: Readonly<Partial<AccountCardProps>>) {
+}:{
+    name: string;
+  username: string;
+  picture?: string;
+  followers: number;
+}) {
+  const [followers, setFollowers] = useState(initialState)
+
   return (
     <Link
       className="flex flex-col gap-4 items-center py-2 px-4 relative"
@@ -27,25 +29,21 @@ export function AccountCard({
       <Avatar className="size-18" src={picture} />
 
       <div className="text-center">
-        <div className="font-semibold text-small line-clamp-1">{displayName}</div>
+        <div className="font-semibold text-small line-clamp-1">{name}</div>
         <div className="text-tiny text-default-600 line-clamp-1">{username}</div>
       </div>
 
       <div className="text-tiny text-default-600">{`${numberFormat(
         followers
-      )} seguidores`}</div>
+      )} ${followers > 1 ? "seguidores" : "seguidor"}`}</div>
 
-      <Button
-        color="primary"
-        size="sm"
-        fullWidth
-        onClick={(e) => {
-          e.stopPropagation();
+
+      <FollowButton color="primary" size="sm" fullWidth username={username} onSuccess={() => {
+        setFollowers((prev) => (prev +1))
+      }} onClick={(e) => {
+             e.stopPropagation();
           e.preventDefault();
-        }}
-      >
-        Seguir
-      </Button>
+      }} />
     </Link>
   );
 }

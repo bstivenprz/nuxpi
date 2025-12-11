@@ -12,6 +12,9 @@ import { RadioGroup } from "@heroui/radio";
 
 import { SearchAccountsInput } from "./search-accounts-input";
 import { SelectedAccountsAlert } from "./selected-accounts-alert";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/axios";
+import { ChannelObject } from "@/api/types/chat.types";
 
 export default function MassMessage() {
   const [radioValue, setRadioValue] = React.useState<string>("personalized");
@@ -20,8 +23,22 @@ export default function MassMessage() {
     avatars: string[];
   }>();
 
-  // const { data: massCounter } = useMassCounterQuery();
-  const massCounter = [];
+  const { data: channels } = useQuery({
+    queryKey: ["channels"],
+    queryFn: () => api<ChannelObject[]>("/broadcast/channels"),
+    select: response => response.data
+  })
+
+  function channelName(key: ChannelObject['key']) {
+    switch (key) {
+      case "followers":
+        return "Seguidores"
+      case "following":
+        return "Seguidos"
+      default:
+        break;
+    }
+  }
 
   function handleChipRadioChange(value: string) {
     if (value === "personalized") {
@@ -65,20 +82,20 @@ export default function MassMessage() {
           title="Enviar a"
           subtitle="Haz una selección de los usuarios a los que deseas enviar el mensaje."
         >
-          {massCounter && (
+          {channels && (
             <RadioGroup
               orientation="horizontal"
               value={radioValue}
               defaultValue="personalized"
               onValueChange={handleChipRadioChange}
             >
-              {massCounter.map((item) => (
+              {channels.map((channel) => (
                 <ChipRadio
-                  endContent={<RadioAvatarGroup items={item.avatars} />}
-                  value={item.key}
-                  key={item.key}
+                  endContent={<RadioAvatarGroup items={channel.pictures} />}
+                  value={channel.key}
+                  key={channel.key}
                 >
-                  {item.name} {numberFormat(item.count)}
+                  {channelName(channel.key)} {numberFormat(channel.count)}
                 </ChipRadio>
               ))}
               <ChipRadio value="personalized">Personalizado...</ChipRadio>

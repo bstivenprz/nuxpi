@@ -5,6 +5,7 @@ export interface PublicProfileObject {
   cover?: string;
   picture?: string;
   gender?: string;
+  followers_count?: number
   is_following?: boolean;
   is_owner?: boolean;
 }

@@ -6,8 +6,9 @@ import { Collection } from "./collection";
 import { Favorites } from "./favorites";
 import { Multimedia } from "./multimedia";
 import { Publications } from "./publications";
+import { CreateTrigger } from "@/components/create-trigger";
 
-export function Content({ isOwner }: { isOwner?: boolean }) {
+export function Content({ username, isOwner }: { username: string, isOwner?: boolean }) {
   return (
     <Tabs
       classNames={{
@@ -21,7 +22,8 @@ export function Content({ isOwner }: { isOwner?: boolean }) {
         className="px-3"
         title={isOwner ? "Tus publicaciones" : "Publicaciones"}
       >
-        <Publications />
+        {isOwner && <CreateTrigger className="mb-2" />}
+        <Publications username={username} />
       </Tab>
 
       {!isOwner && (

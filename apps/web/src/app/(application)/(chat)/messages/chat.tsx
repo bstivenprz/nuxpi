@@ -3,7 +3,7 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { motion } from "framer-motion";
-import { CornerDownRight, ImageIcon, Mic, Video } from "lucide-react";
+import { CornerDownRight, ImageIcon, Video } from "lucide-react";
 import Link from "next/link";
 
 import React from "react";
@@ -41,13 +41,13 @@ const chat = tv({
 type ChatVariantProps = VariantProps<typeof chat>;
 
 interface Props {
-  chatId: string;
+  name: string
+  username: string;
   picture?: string;
-  displayName: string;
   children?: React.ReactNode;
   amount?: number;
   date?: Date;
-  variant?: "text" | "image" | "video" | "audio";
+  type?: "text" | "image" | "video"|"ppv"
   isUnreaded?: boolean;
   isOwnLastMessage?: boolean;
 }
@@ -56,9 +56,9 @@ type ChatProps = Props & ChatVariantProps;
 
 export function Chat(props: ChatProps) {
   const {
-    chatId,
+    name,
+    username,
     picture,
-    displayName,
     date,
     amount = 0,
     isUnreaded = false,
@@ -77,11 +77,11 @@ export function Chat(props: ChatProps) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
       initial={{ opacity: 1, scale: 1 }}
-      key={chatId}
+      key={`chat-inbox-${username}`}
       transition={{ duration: 0.3 }}
       layout
     >
-      <Link className="no-underline" href={`/c/${chatId}`}>
+      <Link className="no-underline" href={`/c/${username}`}>
         <div className={directWrapper()}>
           <div>
             <Avatar src={picture} />
@@ -89,7 +89,7 @@ export function Chat(props: ChatProps) {
 
           <div className="grow">
             <div className="mb-1 flex items-baseline">
-              <div className="grow font-bold">{displayName}</div>
+              <div className="grow font-bold">{name}</div>
               {date && (
                 <div className="text-tiny text-foreground-400">
                   {dayjs(date).fromNow()}
@@ -127,7 +127,7 @@ export function Chat(props: ChatProps) {
   );
 }
 
-function Message({ amount = 0, variant, children }: ChatProps) {
+function Message({ amount = 0, type: variant, children }: ChatProps) {
   const isFeatured = amount > 0;
 
   const { message } = chat({
@@ -155,15 +155,6 @@ function Message({ amount = 0, variant, children }: ChatProps) {
             <Video size={16} />
           </div>
           <div className="line-clamp-1">1:21 &middot; {children}</div>
-        </div>
-      );
-    case "audio":
-      return (
-        <div className={message()}>
-          <div>
-            <Mic size={16} />
-          </div>
-          <div className="line-clamp-1">2:00 &middot; {children}</div>
         </div>
       );
     default:

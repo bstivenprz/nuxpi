@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Avatar, Button } from "@heroui/react";
+import { Avatar } from "@heroui/react";
 import { FollowButton } from "./follow-button";
 
 type AccountBoxProps = {
@@ -10,6 +10,7 @@ type AccountBoxProps = {
   username: string;
   picture?: string;
   description?: string;
+  href?: string
   isFollowing?: boolean;
   hideButton?: boolean;
 };
@@ -19,11 +20,12 @@ export function AccountBox({
   username,
   picture,
   description,
+  href = `/u/${username}`,
   isFollowing,
   hideButton,
 }: AccountBoxProps) {
   return (
-    <Link className="flex gap-3 p-2" href={`/u/${username}`}>
+    <Link className="flex gap-3 p-2 w-full" href={href}>
       <div>
         <Avatar src={picture} />
       </div>

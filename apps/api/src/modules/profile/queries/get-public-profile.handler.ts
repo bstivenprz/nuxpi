@@ -26,6 +26,15 @@ export class GetPublicProfileQueryHandler
       Exception.NotFound('profile_not_found'),
     );
 
+    const followers_count = await Follow.createQueryBuilder('follow')
+      .leftJoin(
+        'follow.followed',
+        'followed',
+        'follow.followed_id = followed.id',
+      )
+      .where('followed.id = :followed_id', { followed_id: public_profile.id })
+      .getCount();
+
     const is_following = await Follow.createQueryBuilder('follow')
       .leftJoin(
         'follow.follower',
@@ -42,6 +51,7 @@ export class GetPublicProfileQueryHandler
       afterMap: (source, destination) => {
         destination.is_owner = source.username === current_username;
         destination.is_following = is_following;
+        destination.followers_count = followers_count;
       },
     });
   }

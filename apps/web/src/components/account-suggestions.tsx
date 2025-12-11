@@ -20,13 +20,13 @@ export function AccountSuggestions() {
   return (
     <div className="space-y-4 py-3">
       <div className="text-tiny text-default-400 px-3">Sugerencias para ti</div>
-      <Swiper spaceBetween={6} slidesPerView={3.5}>
+      <Swiper spaceBetween={6} slidesPerView={2.5}>
         {data?.map((profile, index) => (
           <SwiperSlide
             key={`suggestion-item-${index}`}
             style={{ width: "auto" }}
           >
-            <AccountCard displayName={profile.name} username={profile.username} picture={profile.picture} />
+            <AccountCard name={profile.name} username={profile.username} picture={profile.picture} followers={profile.followers_count} />
           </SwiperSlide>
         ))}
       </Swiper>

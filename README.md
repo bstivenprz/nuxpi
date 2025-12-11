@@ -1,135 +1,64 @@
-# Turborepo starter
+# Nuxpi Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+Interactive social platform with PPV (pay-per-view) gated content, purchases, payouts, and engagement loops. Monorepo managed by Turborepo with a Next.js web app and a NestJS API.
 
-## Using this example
+## Stack
+- **Tooling**: Turborepo, pnpm 9, TypeScript strict, Prettier, ESLint, Jest, Cypress, TailwindCSS.
+- **Frontend (`apps/web`)**: Next.js 16 (App Router), React 19, TailwindCSS v4, @heroui/react, lucide-react icons, TanStack Query, React Hook Form + Zod, Socket.IO client, Supabase SSR helper, Cloudinary uploads.
+- **Backend (`apps/api`)**: NestJS 10, CQRS pattern (commands/queries), TypeORM + PostgreSQL, Supabase auth/JWKS, JWT cookie strategy, Redis cache (planned), Swagger, Socket.IO gateway, Cloudinary + Resend integrations.
+- **Shared**: `packages/ui` (shared components), `packages/eslint-config`, `packages/typescript-config`.
 
-Run the following command:
+## Repository Layout
+- `apps/web/` – Next.js app (App Router). Key folders: `src/app` (routes/layouts), `src/components`, `src/hooks`, `src/libs` (cloudinary/supabase/socket), `src/api` (axios/fetch wrappers + DTOs), `src/providers`.
+- `apps/api/` – NestJS API. Key folders: `src/modules` (identity, profile, chat, feed), `src/auth`, `src/config`, `src/database` (migrations/seeds, data-source), `src/common` (decorators/utils/models), `src/services/supabase`.
+- `packages/ui/` – shared UI building blocks.
+- `packages/eslint-config/` and `packages/typescript-config/` – linting and TS base configs.
+- Root config: `turbo.json`, `pnpm-workspace.yaml`, `.npmrc`, `.gitignore`.
 
-```sh
-npx create-turbo@latest
+## Prerequisites
+- Node.js 18+.
+- pnpm 9 (`corepack enable` or `npm i -g pnpm@9`).
+- PostgreSQL and Redis running locally (match ports in env). Cloudinary and Supabase accounts for media/auth.
+
+## Environment Variables
+Create `.env` files per app (do not commit secrets). Samples live in `apps/api/.env` and `apps/web/.env`; replace placeholder values.
+
+**API (`apps/api/.env`)**
+- App: `PORT`, `API_PREFIX`, `FRONTEND_URL`.
+- Auth: `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, cookie names/expirations, same-site/httpOnly flags.
+- Database: `DB_TYPE`, `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME`, `DB_LOGGING`, `DB_SYNCHRONIZE` (use migrations in production).
+- Redis: `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`.
+- Supabase: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_JWKS_URL`, `SUPABASE_JWT_ISSUER`, `SUPABASE_COOKIE_NAME`.
+- Cloudinary: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- Email: `RESEND_API_KEY`, `RESEND_FROM_NAME`, `RESEND_FROM_EMAIL`.
+
+**Web (`apps/web/.env`)**
+- API: `NEXT_PUBLIC_API_URL`.
+- Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, provider client secrets as needed.
+- Cloudinary: `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_FOLDER`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+
+Rotate any committed keys and keep real values in local/CI secrets only.
+
+## Install
+```bash
+pnpm install
 ```
 
-## What's inside?
+## Common Commands
+- Root: `pnpm dev` (run all), `pnpm build`, `pnpm lint`, `pnpm check-types`, `pnpm format`.
+- Web only: `pnpm --filter web dev`, `pnpm --filter web build`, `pnpm --filter web lint`, `pnpm --filter web cypress:open`.
+- API only: `pnpm --filter api dev`, `pnpm --filter api start`, `pnpm --filter api build`, `pnpm --filter api lint`, `pnpm --filter api test` (Jest).
+- Turborepo filters: `pnpm turbo run <task> --filter=<pkg>` to scope tasks.
 
-This Turborepo includes the following packages/apps:
+## Development Workflow
+- Use `pnpm` commands above; prefer small, incremental changes.
+- Run lint/tests relevant to your change (`pnpm lint`, `pnpm --filter api test`, `pnpm --filter web cypress:open` where applicable).
+- Keep types strict and avoid `any`/non-null assertions; add zod/form validation for inputs.
+- Add migrations for schema changes; avoid `DB_SYNCHRONIZE=true` outside local dev.
+- Ensure accessibility (focus states/aria), performance (memoization, streaming/suspense), and permission checks for all gated flows.
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+## Notes for Collaborators
+- Follow kebab-case for files/folders; camelCase/PascalCase for symbols.
+- Centralize styling tokens in Tailwind/theme; use shared UI from `packages/ui` where possible.
+- Do not commit real secrets; use `.env` locally and CI secrets in pipelines.
+- If you enable remote caching, run `pnpm turbo login && pnpm turbo link` with your Vercel account.

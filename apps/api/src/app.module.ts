@@ -11,6 +11,9 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { FeedModule } from './modules/feed/feed.module';
+import { BullModule } from '@nestjs/bull';
+import { RedisConfig } from './config/redis.config';
+import { ContentModule } from './modules/content/content.module';
 
 @Module({
   imports: [
@@ -21,6 +24,25 @@ import { FeedModule } from './modules/feed/feed.module';
         return new DataSource(options).initialize();
       },
     }),
+    BullModule.forRootAsync({
+      imports: [RedisConfig],
+      useFactory: async (config: RedisConfig) => ({
+        redis: {
+          host: config.host,
+          port: config.port,
+        },
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+          removeOnComplete: 100,
+          removeOnFail: 500,
+        },
+      }),
+      inject: [RedisConfig],
+    }),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
     }),
@@ -28,6 +50,7 @@ import { FeedModule } from './modules/feed/feed.module';
     AuthModule,
     IdentityModule.forRoot(),
     ProfileModule.forRoot(),
+    ContentModule.forRoot(),
     FeedModule.forRoot(),
     ChatModule.forRoot(),
   ],

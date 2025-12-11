@@ -10,7 +10,7 @@ export default async function ApplicationLayout({
       <div className="fixed top-0 left-0 h-full">
         <SideMenu />
       </div>
-      <div className="tablet:w-[621px] desktop:w-[638px] desktop:px-5 w-full h-screen">
+      <div className="tablet:w-[621px] desktop:w-[638px] desktop:px-5 w-full h-screen pb-12">
         {children}
       </div>
     </div>

@@ -1,7 +1,12 @@
-"use client";
+'use client'
 
-import { NotFound } from "@/components/not-found";
+import { ErrorComponent } from "@/components/error-component";
 
-export default function Error() {
-  return <NotFound />;
+export default function Error({
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return <ErrorComponent onReset={reset} />
 }

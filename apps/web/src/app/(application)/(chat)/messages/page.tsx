@@ -1,26 +1,42 @@
 "use client";
 
-import { MessagesSquareIcon, SearchIcon, SquarePenIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 
-import React from "react";
+import { useState } from "react";
 
 import { Header } from "@/components/header";
-import { Alert, Button, Chip, Input, Tab, Tabs } from "@heroui/react";
+import { Alert, Button, Input, Tab, Tabs } from "@heroui/react";
 
 import { Chats } from "./chats";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/axios";
+import { InboxCountersObject } from "@/api/types/chat.types";
+import { SearchResults } from "./search-results";
+import { useDebounceInput } from "@/hooks/use-debounce";
+import { Contacts } from "./contacts";
 
 export default function Messages() {
-  const [startSearch, setStartSearch] = React.useState(false);
+  const [startSearch, setStartSearch] = useState(false);
 
-  // React.useEffect(() => {
-  //   websocket.connect();
+  const { debouncedValue, onChange, setValue } = useDebounceInput();
 
-  //   return () => {
-  //     websocket.disconnect();
-  //     websocket.close();
-  //   };
-  // }, []);
+  const { data: counters } = useQuery({
+    queryKey: ["inbox-counters"],
+    queryFn: () => api<InboxCountersObject>("inbox/counters"),
+    select: (response) => response.data,
+  });
+
+  function handleSearchInputOnChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    if (event.target.value.trim().length === 0) {
+      setStartSearch(false);
+    } else {
+      setStartSearch(true)
+      onChange(event);
+    }
+  }
 
   return (
     <>
@@ -29,19 +45,16 @@ export default function Messages() {
           <div className="flex items-center gap-1">
             <Button
               variant="bordered"
-              startContent={<MessagesSquareIcon size={18} />}
               as={Link}
               href="/messages/mass"
             >
               Mensaje masivo
             </Button>
-            <Button
-              variant="bordered"
-              startContent={<SquarePenIcon size={18} />}
-              onPress={() => open("new-message")}
-            >
-              Nuevo mensaje
-            </Button>
+            <Contacts>
+              <Button variant="bordered">
+                Nuevo mensaje
+              </Button>
+            </Contacts>
           </div>
         }
       >
@@ -59,14 +72,19 @@ export default function Messages() {
       <Input
         className="mb-4 w-full"
         placeholder="Buscar en mensajes"
+        variant="bordered"
         startContent={<SearchIcon size={16} />}
+        onChange={handleSearchInputOnChange}
+        onClear={() => {
+          setStartSearch(false)
+          setValue('')
+        }}
         isClearable
       />
 
-      {startSearch ? (
-        <div>Searhcn</div>
-      ) : (
-        // Hacer que los Tabs sean redireccionables a páginas con error handling usando error.js segun documentación [https://nextjs.org/docs/app/api-reference/file-conventions/error]
+      {startSearch && <SearchResults query={debouncedValue} />}
+
+      {!startSearch && (
         <Tabs
           classNames={{
             tab: "font-semibold data-[hover-unselected=true]:opacity-hover relative",
@@ -76,30 +94,34 @@ export default function Messages() {
           fullWidth
         >
           <Tab key="chats" title="Todos">
-            <Chats />
+            <Chats filter="all" />
           </Tab>
           <Tab
-            key="unreaded"
+            key="unread"
             title={
-              <>
+              <div>
                 No leídos
-                <Chip className="ml-1" size="sm" color="primary">
-                  3
-                </Chip>
-              </>
+                {counters && counters.unreaded_count > 0 && (
+                  <span className="font-bold text-primary">
+                    {counters.unreaded_count}
+                  </span>
+                )}
+              </div>
             }
           >
-            <Chats filter="unreaded" />
+            <Chats filter="unread" />
           </Tab>
           <Tab
             key="featured"
             title={
-              <>
+              <div>
                 Destacados
-                <Chip className="ml-1" size="sm" color="primary">
-                  34
-                </Chip>
-              </>
+                {counters && counters.featured_count > 0 && (
+                  <span className="font-bold text-primary">
+                    {counters.featured_count}
+                  </span>
+                )}
+              </div>
             }
           >
             <Chats filter="featured" />

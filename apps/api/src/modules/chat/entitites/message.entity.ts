@@ -8,10 +8,13 @@ import { AutoMap } from '@automapper/classes';
 @Entity('messages')
 export class Message extends AuditableEntity {
   @Column({ default: 'text' })
-  type: 'text' | 'multimedia' | 'ppv';
+  type: 'text' | 'image' | 'video' | 'ppv';
 
   @Column({ nullable: true })
   content?: string;
+
+  @Column({ default: false })
+  is_broadcast: boolean;
 
   @AutoMap(() => Profile)
   @ManyToOne(() => Profile)
@@ -19,9 +22,9 @@ export class Message extends AuditableEntity {
   sender: Profile;
 
   /** autoMapIgnore */
-  @ManyToOne(() => Conversation)
+  @ManyToOne(() => Conversation, { nullable: true })
   @JoinColumn({ name: 'conversation_id' })
-  conversation: Conversation;
+  conversation?: Conversation;
 
   /** autoMapIgnore */
   @OneToMany(() => MessageAttachment, (attachment) => attachment.message, {

@@ -4,6 +4,7 @@ import { Message } from './message.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { UnixTimestampColumn } from '@/common/decorators/unix-timestamp-columns.decorator';
 import { Profile } from '@/modules/profile/entities/profile.entity';
+import { AutoMap } from '@automapper/classes';
 
 @Entity('conversation_participants')
 export class ConversationParticipant extends AuditableEntity {
@@ -13,14 +14,17 @@ export class ConversationParticipant extends AuditableEntity {
   @UnixTimestampColumn()
   joined_at: Date;
 
+  @AutoMap(() => Message)
   @ManyToOne(() => Message, { nullable: true })
   @JoinColumn({ name: 'last_message_id' })
   last_message: Message;
 
+  /** autoMapIgnore */
   @ManyToOne(() => Conversation, { nullable: false })
   @JoinColumn({ name: 'conversation_id' })
   conversation: Conversation;
 
+  @AutoMap(() => Profile)
   @ManyToOne(() => Profile)
   @JoinColumn({ name: 'participant_id' })
   participant: Profile;

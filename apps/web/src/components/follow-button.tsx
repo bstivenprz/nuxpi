@@ -9,10 +9,12 @@ import React from "react";
 export function FollowButton({
   username,
   initialState = false,
+  onSuccess,
   ...props
 }: {
   username: string;
   initialState?: boolean;
+  onSuccess?: () => void
 } & ButtonProps) {
   const queryClient = useQueryClient();
 
@@ -42,6 +44,7 @@ export function FollowButton({
     },
     onSuccess: (response) => {
       setIsFollowing(response.data.is_following);
+      onSuccess?.()
     },
     onSettled: async (_, __, variables) => {
       await queryClient.invalidateQueries({

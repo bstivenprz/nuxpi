@@ -1,6 +1,4 @@
-import { ArrowLeftIcon } from "lucide-react";
 
-import { CreateTrigger } from "@/components/create-trigger";
 import { ExpandableTextbox } from "@/components/expandable-textbox";
 import { Heading } from "@/components/heading";
 import { Button } from "@heroui/button";
@@ -137,9 +135,7 @@ export default async function Profile({
         </div>
       </div>
 
-      {profile.is_owner && <CreateTrigger />}
-
-      <Content isOwner={profile.is_owner} />
+      <Content username={username} isOwner={profile.is_owner} />
     </>
   );
 }

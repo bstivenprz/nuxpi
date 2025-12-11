@@ -1,87 +1,64 @@
 "use client";
 
-import { Settings2Icon } from "lucide-react";
+import { CircleDollarSignIcon, GlobeIcon } from "lucide-react";
 
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
-import {
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Selection,
-} from "@heroui/react";
+import { Accordion, AccordionItem, Button, RadioGroup } from "@heroui/react";
 
-import { CreateForm } from "./types";
+import { Heading } from "@/components/heading";
+import { CardRadio } from "@/components/card-radio";
+import { Form } from "./schema";
 
-export const DEFAULT_SELECTED_PRIVACY = "anyone";
-
-export function Footer() {
-  const form = useFormContext<CreateForm>();
-
-  const isValid = form.formState.dirtyFields && form.formState.isValid;
-  const isLoading = form.formState.isSubmitting;
+export function Footer({ isPending }: { isPending: boolean }) {
+  const {
+    register,
+    formState: { isDirty },
+  } = useFormContext<Form>();
 
   return (
-    <div className="flex items-center gap-2">
-      <Controller
-        render={({ field }) => (
-          <div className="grow">
-            <Dropdown>
-              <DropdownTrigger className="text-small hover:opacity-hover max-w-fit cursor-pointer font-medium">
-                <Button
-                  className="px-2"
-                  variant="light"
-                  size="sm"
-                  startContent={
-                    <Settings2Icon className="text-default-600" size={20} />
-                  }
-                >
-                  Privacidad de comentarios
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                defaultSelectedKeys={new Set([DEFAULT_SELECTED_PRIVACY])}
-                selectedKeys={new Set([field.value]) as Selection}
-                selectionMode="single"
-                disallowEmptySelection
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys as Set<string>)[0];
-                  field.onChange(selectedKey);
-                }}
-              >
-                <DropdownItem
-                  key="anyone"
-                  description="Cualquiera puede comentar"
-                >
-                  Cualquiera
-                </DropdownItem>
-                <DropdownItem
-                  key="followers"
-                  description="Seguidores y seguidos pueden comentar"
-                >
-                  Seguidores y seguidos
-                </DropdownItem>
-                <DropdownItem
-                  key="sponsors"
-                  description="Sólo los perfiles que te manden tokens pueden comentar"
-                >
-                  Tus sponsors
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        )}
-        control={form.control}
-        name="comments_privacy"
-      />
+    <div>
+      <Heading level="h4">Opciones de publicación</Heading>
+
+      <Accordion
+        itemClasses={{
+          title: "text-large font-medium",
+          trigger: "py-2",
+        }}
+        showDivider={false}
+        selectionMode="multiple"
+      >
+        <AccordionItem
+          key="0"
+          aria-label="Audiencia"
+          title="Audiencia"
+          subtitle="Decide quién puede ver tu publicación."
+        >
+          <RadioGroup defaultValue="everyone" {...register("audience")}>
+            <CardRadio
+              value="everyone"
+              startContent={<GlobeIcon />}
+              title="Acceso público"
+              description="Permite a todos acceder a esta publicación y descubrir tu contenido."
+            />
+            <CardRadio
+              value="paid-only"
+              startContent={<CircleDollarSignIcon />}
+              title="Acceso exclusivo"
+              description="Limita el acceso a miembros y personas que compren esta publicación."
+            />
+          </RadioGroup>
+        </AccordionItem>
+      </Accordion>
+
       <Button
-        color="primary"
-        variant="bordered"
-        isDisabled={!isValid}
-        isLoading={isLoading}
+        className="mt-6"
         type="submit"
+        color="primary"
+        size="lg"
+        isDisabled={!isDirty}
+        isLoading={isPending}
+        fullWidth
       >
         Publicar
       </Button>

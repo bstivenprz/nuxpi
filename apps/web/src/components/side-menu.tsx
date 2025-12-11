@@ -7,13 +7,13 @@ import {
   MessagesSquareIcon,
   PlusIcon,
   SearchIcon,
+  SparklesIcon,
   UserIcon,
   WalletMinimalIcon,
 } from "lucide-react";
 
 import { Badge } from "@heroui/badge";
 import { Chip } from "@heroui/chip";
-import { Skeleton } from "@heroui/skeleton";
 
 import { MenuButton } from "./menu-button";
 import { MenuHeader } from "./menu-header";
@@ -84,20 +84,18 @@ export async function SideMenu() {
           href="/wallet"
           startContent={<WalletMinimalIcon />}
           endContent={
-            <Skeleton>
-              <Chip
-                classNames={{
-                  content: "font-semibold",
-                  base: "px-2",
-                }}
-                size="sm"
-                color="danger"
-                radius="none"
-              >
-                {/* {balance?.balance ?? 0} TK */}
-                100 TK
-              </Chip>
-            </Skeleton>
+            <Chip
+              classNames={{
+                content: "font-semibold",
+                base: "px-2",
+              }}
+              size="sm"
+              color="danger"
+              radius="none"
+            >
+              {/* {balance?.balance ?? 0} TK */}
+              100 TK
+            </Chip>
           }
         >
           Billetera
@@ -108,6 +106,7 @@ export async function SideMenu() {
       </div>
 
       <div className="flex w-full flex-col">
+        <MenuButton startContent={<SparklesIcon />}>Novedades</MenuButton>
         <MenuButton startContent={<CircleQuestionMarkIcon />}>
           Soporte
         </MenuButton>

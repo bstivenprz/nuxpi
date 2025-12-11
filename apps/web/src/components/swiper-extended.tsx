@@ -48,7 +48,7 @@ export function SwiperExtended({
         <>
           <div className="absolute left-0 top-0 z-10" id={prevElementId}>
             <div
-              className="invisible bg-gradient-to-r from-background from-60% to-transparent pr-2 data-[all=true]:visible data-[start=true]:visible"
+              className="invisible bg-linear-to-r from-background from-60% to-transparent pr-2 data-[all=true]:visible data-[start=true]:visible"
               data-start={["start", "all"].includes(slideState)}
             >
               <Button radius="full" size="sm" variant="light" isIconOnly>
@@ -58,7 +58,7 @@ export function SwiperExtended({
           </div>
           <div className="absolute right-0 top-0 z-10" id={nextElementId}>
             <div
-              className="invisible bg-gradient-to-l from-background from-60% to-transparent pl-2 data-[all=true]:visible data-[end=true]:visible"
+              className="invisible bg-linear-to-l from-background from-60% to-transparent pl-2 data-[all=true]:visible data-[end=true]:visible"
               data-end={["end", "all"].includes(slideState)}
             >
               <Button radius="full" size="sm" variant="light" isIconOnly>
