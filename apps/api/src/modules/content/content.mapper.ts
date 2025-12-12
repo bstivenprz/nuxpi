@@ -5,6 +5,8 @@ import { Publication } from './entities/publication.entity';
 import { PublicationObject } from './objects/publication.object';
 import { CommentObject } from './objects/comment.object';
 import { Comment } from './entities/comment.entity';
+import { Asset } from './entities/asset.entity';
+import { AssetObject } from './objects/asset.object';
 
 @Injectable()
 export class ContentMapper extends AutomapperProfile {
@@ -16,6 +18,7 @@ export class ContentMapper extends AutomapperProfile {
     return (mapper) => {
       createMap(mapper, Publication, PublicationObject);
       createMap(mapper, Comment, CommentObject);
+      createMap(mapper, Asset, AssetObject);
     };
   }
 }

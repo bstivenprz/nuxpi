@@ -87,6 +87,7 @@ export class CloudinaryService {
       public_id?: string;
       resource_type?: 'image' | 'video' | 'raw' | 'auto';
       transformation?: UploadApiOptions['transformation'];
+      tags?: string[];
     },
   ): Promise<UploadApiResponse> {
     const uploadOptions: UploadApiOptions = {
@@ -94,6 +95,7 @@ export class CloudinaryService {
       public_id: options?.public_id,
       resource_type: options?.resource_type || 'image',
       transformation: options?.transformation,
+      tags: options?.tags,
       // chunk_size is used for large file uploads (files > 100MB)
       // Cloudinary will automatically use chunked upload when chunk_size is set
       chunk_size: 6000000, // 6MB chunks (minimum 5MB)

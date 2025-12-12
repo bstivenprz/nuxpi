@@ -5,5 +5,7 @@ export class UploadAssetCommand implements ICommand {
     readonly profile_id: string,
     readonly username: string,
     readonly file: Express.Multer.File,
+    readonly width: number,
+    readonly height: number,
   ) {}
 }

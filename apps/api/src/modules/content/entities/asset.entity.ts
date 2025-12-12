@@ -2,17 +2,10 @@ import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
 import { Publication } from './publication.entity';
 import { AuditableEntity } from '@/common/models/auditable-entity';
-import { UnixTimestampColumn } from '@/common/decorators/unix-timestamp-columns.decorator';
 
 export enum AssetType {
   IMAGE = 'image',
   VIDEO = 'video',
-}
-
-export enum AssetStatus {
-  PENDING = 'pending',
-  UPLOADED = 'uploaded',
-  FAILED = 'failed',
 }
 
 @Entity('assets')
@@ -37,9 +30,6 @@ export class Asset extends AuditableEntity {
 
   @Column({ nullable: true })
   diration?: number;
-
-  @Column({ type: 'enum', enum: AssetStatus, default: AssetStatus.PENDING })
-  status?: AssetStatus;
 
   @AutoMap(() => Publication)
   @ManyToOne(() => Publication, { onDelete: 'CASCADE' })
