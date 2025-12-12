@@ -36,7 +36,7 @@ export class Asset extends AuditableEntity {
   @JoinColumn({ name: 'publication_id' })
   publication: Publication;
 
-  constructor(props: Partial<Asset>) {
+  constructor(props?: Partial<Asset>) {
     super();
     Object.assign(this, props);
   }

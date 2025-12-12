@@ -9,6 +9,7 @@ import { Accordion, AccordionItem, Button, RadioGroup } from "@heroui/react";
 import { Heading } from "@/components/heading";
 import { CardRadio } from "@/components/card-radio";
 import { Form } from "./schema";
+import { useIsMutating } from "@tanstack/react-query";
 
 export function Footer({ isPending }: { isPending: boolean }) {
   const {
@@ -16,8 +17,8 @@ export function Footer({ isPending }: { isPending: boolean }) {
     formState: { isDirty },
   } = useFormContext<Form>();
 
-  // TODO: get multimedia mutation state to disable button when uploading
-  
+  const isUploadingMultimedia =
+    useIsMutating({ mutationKey: ["upload-multimedia"] }) > 0;
 
   return (
     <div>
@@ -59,11 +60,11 @@ export function Footer({ isPending }: { isPending: boolean }) {
         type="submit"
         color="primary"
         size="lg"
-        isDisabled={!isDirty}
+        isDisabled={!isDirty || isUploadingMultimedia}
         isLoading={isPending}
         fullWidth
       >
-        Publicar
+        {isUploadingMultimedia ? "Subiendo contenido..." : "Publicar"}
       </Button>
     </div>
   );

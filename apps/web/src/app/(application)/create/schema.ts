@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import z from "zod";
 
@@ -20,8 +20,8 @@ export const ACCPETED_VIDEO_MIME_TYPES = [
 
 export const schema = z.object({
   caption: z.string().optional(),
-  audience: z.enum(["everyone", "paid-only"]),
-  assets: z.instanceof(FileList).optional(),
+  audience: z.enum(["everyone", "paid-only"]).default("everyone"),
+  assets: z.array(z.string()).optional(),
 });
 
 export type Form = z.infer<typeof schema>;

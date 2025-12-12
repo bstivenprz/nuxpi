@@ -11,6 +11,6 @@ export class CloudinaryConfig {
   @Value('CLOUDINARY_API_SECRET')
   api_secret: string;
 
-  @Value('CLOUDINARY_FOLDER', { default: 'nuxpi' })
+  @Value('CLOUDINARY_FOLDER', { default: 'multimedia' })
   folder: string;
 }

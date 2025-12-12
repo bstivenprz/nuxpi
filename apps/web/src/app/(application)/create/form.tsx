@@ -1,6 +1,7 @@
 "use client";
 
 import { FormProvider, useForm } from "react-hook-form";
+import { useCallback } from "react";
 
 import { Alert, Avatar } from "@heroui/react";
 
@@ -13,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { schema } from "./schema";
 import { useAuthenticated } from "@/hooks/use-authenticated";
 import { MultimediaPreview } from "./multimedia-preview";
+import { MultimediaContextProvider } from "@/contexts/multimedia-context";
 
 export function CreatePublicationForm() {
   const profile = useAuthenticated();
@@ -26,6 +28,32 @@ export function CreatePublicationForm() {
     resolver: zodResolver(schema),
   });
 
+  const handleUploadSuccess = useCallback(
+    (asset: { id: string }) => {
+      const currentIds = form.getValues("assets") || [];
+      if (!currentIds.includes(asset.id)) {
+        form.setValue("assets", [...currentIds, asset.id], {
+          shouldDirty: true,
+        });
+      }
+    },
+    [form]
+  );
+
+  const handleRemoveCallback = useCallback(
+    (key: string, asset?: { id: string }) => {
+      if (asset) {
+        const currentIds = form.getValues("assets") || [];
+        form.setValue(
+          "assets",
+          currentIds.filter((id) => id !== asset.id),
+          { shouldDirty: true }
+        );
+      }
+    },
+    [form]
+  );
+
   return (
     <FormProvider {...form}>
       {state?.success === false && (
@@ -37,24 +65,31 @@ export function CreatePublicationForm() {
       )}
 
       <form className="space-y-6" action={formAction}>
-        <div className="flex gap-3">
-          <div>
-            <Avatar src={profile?.picture} />
+        <MultimediaContextProvider
+          options={{
+            onUploadSuccess: handleUploadSuccess,
+            onRemove: handleRemoveCallback,
+          }}
+        >
+          <div className="flex gap-3">
+            <div>
+              <Avatar src={profile?.picture} />
+            </div>
+
+            <div className="grow">
+              <Caption />
+              <Tools />
+              {form.formState.errors && (
+                <div className="text-tiny text-danger">
+                  {form.formState.errors.root?.message}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="grow">
-            <Caption />
-            <Tools />
-            {form.formState.errors && (
-              <div className="text-tiny text-danger">
-                {form.formState.errors.root?.message}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <MultimediaPreview />
-        <Footer isPending={isPending} />
+          <MultimediaPreview />
+          <Footer isPending={isPending} />
+        </MultimediaContextProvider>
       </form>
     </FormProvider>
   );

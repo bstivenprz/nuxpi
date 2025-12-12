@@ -118,10 +118,7 @@ export function Publication({
 
       {showCommentsSection && (
         <div className="px-1">
-          <CommentTextarea
-            publication={externalId}
-            commentsRef={commentsRef}
-          />
+          <CommentTextarea publication={externalId} commentsRef={commentsRef} />
           <Comments ref={commentsRef} publication={externalId} />
         </div>
       )}

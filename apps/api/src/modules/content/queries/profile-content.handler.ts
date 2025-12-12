@@ -13,6 +13,8 @@ import { Publication } from '../entities/publication.entity';
 import { CloudinaryService } from '@/services/cloudinary/cloudinary.service';
 import { Like } from '../entities/like.entity';
 import { In } from 'typeorm';
+import { Asset } from '../entities/asset.entity';
+import { AssetObject } from '../objects/asset.object';
 
 @QueryHandler(ProfileContentQuery)
 export class ProfileContentQueryHandler
@@ -80,9 +82,7 @@ export class ProfileContentQueryHandler
       const source = publications[index];
       return {
         ...pub,
-        assets: source.assets
-          .filter((a) => a.cloudinary_public_id)
-          .map((a) => this.cloudinaryService.getUrl(a.cloudinary_public_id!)),
+        assets: this.mapper.mapArray(source.assets, Asset, AssetObject),
         is_owner: source.author.id === current_profile_id,
         is_liked: liked_publications_ids.has(source.id),
       };

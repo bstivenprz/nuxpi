@@ -1,4 +1,8 @@
 import React from "react";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/api/axios";
+import { addToast } from "@heroui/react";
+import { AssetObject } from "@/api/types/content.types";
 
 export interface Multimedia {
   key: string;
@@ -7,14 +11,43 @@ export interface Multimedia {
   thumbnail?: string;
   croppedBlob?: Blob;
   croppedThumbnail?: string;
+  previewUrl?: string;
   size: number;
   width: number;
   height: number;
 }
 
-export function useMultimedia() {
+export async function mutationFnUploadMultimedia({
+  file,
+  width,
+  height,
+  key,
+}: {
+  file: File;
+  width: number;
+  height: number;
+  key: string;
+}) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("width", width.toString());
+  formData.append("height", height.toString());
+  const response = await api.post<AssetObject>("/assets/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return { asset: response.data, key };
+}
+
+export interface UseMultimediaOptions {
+  onUploadSuccess?: (asset: AssetObject, key: string) => void;
+  onRemove?: (key: string, asset?: AssetObject) => void;
+}
+
+export function useMultimedia(options?: UseMultimediaOptions) {
+  const { onUploadSuccess, onRemove: onRemoveCallback } = options || {};
   const [multimedia, setMultimedia] = React.useState<Multimedia[]>([]);
   const counterRef = React.useRef(0);
+  const uploadedKeysRef = React.useRef<Set<string>>(new Set());
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
@@ -37,7 +70,7 @@ export function useMultimedia() {
 
           return {
             ...m,
-            cropped: blob,
+            croppedBlob: blob,
             croppedThumbnail: URL.createObjectURL(blob),
           };
         }
@@ -192,12 +225,90 @@ export function useMultimedia() {
     });
   }
 
+  const { mutate: uploadFile } = useMutation({
+    mutationKey: ["upload-multimedia"],
+    mutationFn: mutationFnUploadMultimedia,
+    onSuccess: ({ asset, key }) => {
+      setMultimedia((prev) =>
+        prev.map((m) =>
+          m.key === key ? { ...m, previewUrl: asset.public_url } : m
+        )
+      );
+      onUploadSuccess?.(asset, key);
+    },
+    onError: (error, variables) => {
+      const key = variables.key;
+      uploadedKeysRef.current.delete(key);
+      remove(key);
+
+      addToast({
+        title: "Error al subir archivo",
+        description:
+          "No se pudo subir el archivo. Por favor, inténtalo de nuevo.",
+        color: "danger",
+      });
+    },
+  });
+
+  React.useEffect(() => {
+    for (const media of multimedia) {
+      if (uploadedKeysRef.current.has(media.key)) {
+        continue;
+      }
+
+      if (media.width === 0 || media.height === 0) {
+        continue;
+      }
+
+      const file =
+        media.blob instanceof File
+          ? media.blob
+          : new File([media.blob], `file-${media.key}`, {
+              type: media.mimetype,
+            });
+
+      uploadedKeysRef.current.add(media.key);
+
+      uploadFile({
+        file,
+        key: media.key,
+        width: media.width,
+        height: media.height,
+      });
+    }
+
+    const currentKeys = new Set(multimedia.map((m) => m.key));
+    for (const key of uploadedKeysRef.current) {
+      if (!currentKeys.has(key)) {
+        uploadedKeysRef.current.delete(key);
+      }
+    }
+  }, [multimedia]);
+
+  function handleRemove(key: string) {
+    uploadedKeysRef.current.delete(key);
+    remove(key);
+    onRemoveCallback?.(key);
+  }
+
+  const previewUrls = React.useMemo(
+    () =>
+      multimedia
+        .map((m) => m.previewUrl)
+        .filter((url): url is string => url !== undefined),
+    [multimedia]
+  );
+
   return {
     multimedia,
+    previewUrls,
     add,
     remove,
+    handleRemove,
     cleanUp,
     handleInputChange,
     handleCroppedChange,
   };
 }
+
+export type UseMultimedia = ReturnType<typeof useMultimedia>;

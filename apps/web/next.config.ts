@@ -4,7 +4,13 @@ const nextConfig: NextConfig = {
   /* config options here */
   poweredByHeader: false,
   images: {
-    remotePatterns: [new URL("https://res.cloudinary.com/**")],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+    ],
   },
   logging: {
     fetches: {

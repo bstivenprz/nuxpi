@@ -67,6 +67,8 @@ export class UploadAssetCommandHandler
       height: result.height,
     });
 
+    await asset.save();
+
     return this.mapper.map(asset, Asset, AssetObject);
   }
 }

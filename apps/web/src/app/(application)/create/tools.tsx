@@ -3,11 +3,10 @@
 import { ImagePlusIcon } from "lucide-react";
 
 import { Button } from "@heroui/react";
-import { useFormContext } from "react-hook-form";
-import { Form } from "./schema";
+import { useMultimediaContext } from "@/contexts/multimedia-context";
 
 export function Tools() {
-  const { register } = useFormContext<Form>();
+  const { handleInputChange } = useMultimediaContext();
 
   return (
     <div className="flex items-center gap-2 pt-2">
@@ -26,7 +25,7 @@ export function Tools() {
           id="create-publication-attachment-images-input"
           accept="image/jpeg,image/png,image/webp,image/heic,image/heif,video/mp4,video/quicktime,video/webm,video/3gpp,video/3gp"
           multiple
-          {...register("assets")}
+          onChange={handleInputChange}
         />
       </Button>
     </div>

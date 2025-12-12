@@ -3,10 +3,10 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreatePublicationCommand } from './create-publication.command';
 import { Profile } from '@/modules/profile/entities/profile.entity';
 import { Exception } from '@/common/models/http-exception';
-import { Publication } from '../entities/publication.entity';
-import { Asset, AssetType } from '../entities/asset.entity';
+import { Publication, PublicationType } from '../entities/publication.entity';
+import { Asset } from '../entities/asset.entity';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { EntityManager } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 import { PublicationObject } from '../objects/publication.object';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
@@ -37,14 +37,13 @@ export class CreatePublicationCommandHandler
           type: body.type,
         });
 
-        if (body.assets) {
-          const assets = body.assets.map((asset) => {
-            return new Asset({
-              type: AssetType.IMAGE,
-              cloudinary_public_id: asset,
-            });
+        if (body.assets && body.assets.length > 0) {
+          const assets = await Asset.findBy({
+            id: In(body.assets),
           });
-
+          if (assets.length !== body.assets.length)
+            throw Exception.BadRequest('assets_not_found');
+          publication.type = PublicationType.MULTIMEDIA;
           publication.assets = assets;
         }
 
