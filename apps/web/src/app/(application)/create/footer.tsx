@@ -16,6 +16,9 @@ export function Footer({ isPending }: { isPending: boolean }) {
     formState: { isDirty },
   } = useFormContext<Form>();
 
+  // TODO: get multimedia mutation state to disable button when uploading
+  
+
   return (
     <div>
       <Heading level="h4">Opciones de publicación</Heading>

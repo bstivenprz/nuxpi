@@ -17,7 +17,7 @@ export class UploadAssetCommandHandler
 
   private calculateFontSize(width: number, height: number): number {
     const minDimension = Math.min(width, height);
-    const calculatedSize = Math.floor(minDimension * 0.03);
+    const calculatedSize = Math.floor(minDimension * 0.02);
     return Math.max(16, Math.min(72, calculatedSize));
   }
 
@@ -27,11 +27,7 @@ export class UploadAssetCommandHandler
     const isVideo = file.mimetype.startsWith('video/');
     const assetType = isVideo ? AssetType.VIDEO : AssetType.IMAGE;
 
-    const watermarkText = `nuxpi.com/u/${username}`;
-
     const id = randomUUID();
-
-    const fontSize = this.calculateFontSize(width, height);
 
     const result = await this.cloudinaryService.uploadLarge(file.buffer, {
       public_id: `${assetType}s/${id}`,
@@ -40,22 +36,25 @@ export class UploadAssetCommandHandler
       transformation: [
         {
           overlay: 'watermark',
-          gravity: 'south_east',
+          gravity: 'north_east',
           width: '0.05',
           flags: ['relative'],
           opacity: 60,
+          x: 0.02,
+          y: 0.02,
         },
         {
           overlay: {
-            font_family: 'Arial',
-            font_size: fontSize,
-            text: watermarkText,
-            font_weight: 'bold',
+            font_family: 'Roboto',
+            font_size: this.calculateFontSize(width, height),
+            font_weight: 'medium',
+            text: `nuxpi.com/u/${username}`,
           },
           color: 'white',
           gravity: 'south_east',
-          y: 30, // nudge above watermark image
-          opacity: 100,
+          opacity: 40,
+          x: 10,
+          y: 15,
         },
       ],
     });
