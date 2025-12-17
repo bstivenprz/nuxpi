@@ -78,7 +78,7 @@ export function Publication({
                 {author.username}
               </Link>
             </div>
-            <OptionsDropdown isOwner={isOwner} />
+            <OptionsDropdown isOwner={isOwner} externalId={externalId} />
           </div>
 
           {caption && <p className="mobile:text-base/5l">{caption}</p>}

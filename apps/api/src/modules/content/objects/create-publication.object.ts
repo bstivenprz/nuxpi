@@ -1,5 +1,4 @@
-import { IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
-import { PublicationType } from '../entities/publication.entity';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePublicationBody {
@@ -9,13 +8,13 @@ export class CreatePublicationBody {
   caption?: string;
 
   @ApiProperty()
-  @IsEnum(PublicationType)
-  @IsOptional()
-  type?: PublicationType;
-
-  @ApiProperty()
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
   assets?: string[];
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  audience?: string;
 }

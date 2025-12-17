@@ -29,13 +29,21 @@ export class AssetsController {
 
     const width = Number(req.body?.width);
     const height = Number(req.body?.height);
+    const is_private = req.body?.is_private === 'true';
 
     if (!width || !height || isNaN(width) || isNaN(height)) {
       throw new Error('Valid width and height are required');
     }
 
     return await this.commandBus.execute(
-      new UploadAssetCommand(profile_id, username, file, width, height),
+      new UploadAssetCommand(
+        profile_id,
+        username,
+        file,
+        width,
+        height,
+        is_private,
+      ),
     );
   }
 }

@@ -1,4 +1,3 @@
-import { UnixTimestampColumn } from '@/common/decorators/unix-timestamp-columns.decorator';
 import { AuditableEntity } from '@/common/models/auditable-entity';
 import { Profile } from '@/modules/profile/entities/profile.entity';
 import { AutoMap } from '@automapper/classes';
@@ -15,6 +14,11 @@ import { Asset } from './asset.entity';
 export enum PublicationType {
   MULTIMEDIA = 'multimedia',
   TEXT = 'text',
+}
+
+export enum Audience {
+  EVERYONE = 'everyone',
+  PAID_ONLY = 'paid-only',
 }
 
 @Entity('publications')
@@ -42,14 +46,11 @@ export class Publication extends AuditableEntity {
   @JoinColumn({ name: 'author_id' })
   author: Profile;
 
-  @Column({ type: 'boolean', default: false })
-  is_locked: boolean;
-
   @Column({ type: 'numeric', nullable: true })
   price?: number;
 
-  @UnixTimestampColumn({ nullable: true })
-  unlock_date?: Date;
+  @Column({ type: 'enum', enum: Audience, default: Audience.EVERYONE })
+  audience: Audience;
 
   @Column({ type: 'integer', default: 0 })
   sales_count: number;

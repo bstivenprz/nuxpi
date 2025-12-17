@@ -2,14 +2,13 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UploadAssetCommand } from './upload-asset.command';
 import { CloudinaryService } from '@/services/cloudinary/cloudinary.service';
 import { Asset, AssetType } from '../entities/asset.entity';
-import { AssetObject } from '../objects/asset.object';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { randomUUID } from 'crypto';
 
 @CommandHandler(UploadAssetCommand)
 export class UploadAssetCommandHandler
-  implements ICommandHandler<UploadAssetCommand, AssetObject>
+  implements ICommandHandler<UploadAssetCommand, string>
 {
   @InjectMapper() mapper: Mapper;
 
@@ -21,17 +20,20 @@ export class UploadAssetCommandHandler
     return Math.max(16, Math.min(72, calculatedSize));
   }
 
-  async execute(command: UploadAssetCommand): Promise<AssetObject> {
-    const { username, file, width, height } = command;
+  async execute(command: UploadAssetCommand): Promise<string> {
+    const { username, file, width, height, is_private } = command;
 
-    const isVideo = file.mimetype.startsWith('video/');
-    const assetType = isVideo ? AssetType.VIDEO : AssetType.IMAGE;
+    const is_video = file.mimetype.startsWith('video/');
+    const resource_type = is_video ? AssetType.VIDEO : AssetType.IMAGE;
 
     const id = randomUUID();
 
+    const public_id = `${resource_type}s/${id}`;
+
     const result = await this.cloudinaryService.uploadLarge(file.buffer, {
-      public_id: `${assetType}s/${id}`,
-      resource_type: assetType,
+      public_id,
+      resource_type,
+      type: is_private ? 'authenticated' : 'public',
       tags: [username],
       transformation: [
         {
@@ -61,7 +63,7 @@ export class UploadAssetCommandHandler
 
     const asset = new Asset({
       id,
-      type: assetType,
+      type: resource_type,
       cloudinary_public_id: result.public_id,
       width: result.width,
       height: result.height,
@@ -69,6 +71,6 @@ export class UploadAssetCommandHandler
 
     await asset.save();
 
-    return this.mapper.map(asset, Asset, AssetObject);
+    return asset.id;
   }
 }

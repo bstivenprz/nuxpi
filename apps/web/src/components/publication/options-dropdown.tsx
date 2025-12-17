@@ -3,7 +3,6 @@
 import {
   BookmarkIcon,
   EllipsisIcon,
-  HeartOffIcon,
   Link2Icon,
   PinIcon,
   TrashIcon,
@@ -17,8 +16,36 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/react";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/api/axios";
+import { useRouter } from "next/navigation";
 
-export function OptionsDropdown({ isOwner }: { isOwner?: boolean; }) {
+export function OptionsDropdown({
+  isOwner,
+  externalId,
+}: {
+  isOwner?: boolean;
+  externalId: string;
+}) {
+  const router = useRouter();
+
+  const { mutate: deletePublication } = useMutation({
+    mutationFn: (id: string) => api.delete(`/publications/${id}`),
+    onSuccess: () => {
+      addToast({
+        title: "Publicación eliminada.",
+      });
+      router.push("/");
+    },
+    onError: () => {
+      addToast({
+        title: "Error al eliminar la publicación.",
+        description: "Por favor, intenta nuevamente.",
+        color: "danger",
+      });
+    },
+  });
+
   function copyPublicationURLToClipboard() {
     navigator.clipboard.writeText(window.location.href);
     addToast({
@@ -32,17 +59,9 @@ export function OptionsDropdown({ isOwner }: { isOwner?: boolean; }) {
     });
   }
 
-  function toggleHideInsights() {}
-
   function toggleBookmarkPublication() {
     addToast({
       title: "Publicación guardada.",
-    });
-  }
-
-  function deletePublication() {
-    addToast({
-      title: "Publicación eliminada.",
     });
   }
 
@@ -61,22 +80,15 @@ export function OptionsDropdown({ isOwner }: { isOwner?: boolean; }) {
         >
           Copiar enlace
         </DropdownItem>
-        <DropdownItem
-          endContent={<PinIcon size={18} />}
-          key="pin"
-          onPress={togglePinPublication}
-        >
-          Fijar en el perfil
-        </DropdownItem>
-        <DropdownItem
-          endContent={<HeartOffIcon size={18} />}
-          showDivider
-          key="hide-insights"
-          onPress={toggleHideInsights}
-        >
-          Ocultar me gustas y comentarios
-        </DropdownItem>
-
+        {isOwner ? (
+          <DropdownItem
+            endContent={<PinIcon size={18} />}
+            key="pin"
+            onPress={togglePinPublication}
+          >
+            Fijar en el perfil
+          </DropdownItem>
+        ) : null}
         <DropdownItem
           endContent={<BookmarkIcon size={18} />}
           showDivider
@@ -85,15 +97,16 @@ export function OptionsDropdown({ isOwner }: { isOwner?: boolean; }) {
         >
           Guardar
         </DropdownItem>
-
-        <DropdownItem
-          className="text-danger"
-          endContent={<TrashIcon size={18} />}
-          key="delete"
-          onPress={deletePublication}
-        >
-          Eliminar
-        </DropdownItem>
+        {isOwner ? (
+          <DropdownItem
+            className="text-danger"
+            endContent={<TrashIcon size={18} />}
+            key="delete"
+            onPress={() => deletePublication(externalId)}
+          >
+            Eliminar
+          </DropdownItem>
+        ) : null}
       </DropdownMenu>
     </Dropdown>
   );

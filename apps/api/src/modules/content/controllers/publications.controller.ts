@@ -21,6 +21,7 @@ import { CreateCommentCommand } from '../commands/create-comment.command';
 import { DeleteCommentCommand } from '../commands/delete-comment.command';
 import { CreateCommentBody } from '../objects/create-comment.object';
 import { ListPublicationCommentsQuery } from '../queries/list-publication-comments.query';
+import { DeletePublicationCommand } from '../commands/delete-publication.command';
 
 @Controller('publications')
 export class PublicationsController {
@@ -51,6 +52,16 @@ export class PublicationsController {
   ) {
     return this.queryBus.execute(
       new GetPublicationQuery(profile_id, publication_id),
+    );
+  }
+
+  @Delete(':publication_id')
+  delete(
+    @Session('profile_id') profile_id: string,
+    @Param('publication_id') publication_id: string,
+  ) {
+    return this.commandBus.execute(
+      new DeletePublicationCommand(profile_id, publication_id),
     );
   }
 

@@ -19,13 +19,19 @@ export async function createPublicationAction(
     assets: (formData.get("assets") as string)?.split(",") ?? [],
   };
 
+  console.log(body);
+
   const response = await fetchAPI("/publications", {
     method: "POST",
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    console.error("Error creating publication:", response.status);
+    console.error(
+      "Error creating publication:",
+      response.status,
+      await response.json()
+    );
     return {
       success: false,
       error: "Error al crear la publicación",

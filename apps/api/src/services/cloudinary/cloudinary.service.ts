@@ -9,6 +9,8 @@ import {
 
 @Injectable()
 export class CloudinaryService {
+  cloudinary = cloudinary;
+
   constructor(readonly config: CloudinaryConfig) {
     cloudinary.config({
       cloud_name: config.cloud_name,
@@ -82,23 +84,20 @@ export class CloudinaryService {
 
   async uploadLarge(
     file: Buffer | string,
-    options?: {
-      folder?: string;
-      public_id?: string;
-      resource_type?: 'image' | 'video' | 'raw' | 'auto';
-      transformation?: UploadApiOptions['transformation'];
-      tags?: string[];
-    },
+    options?: UploadApiOptions,
   ): Promise<UploadApiResponse> {
     const uploadOptions: UploadApiOptions = {
       folder: options?.folder || this.config.folder,
       public_id: options?.public_id,
       resource_type: options?.resource_type || 'image',
       transformation: options?.transformation,
+      eager: options?.eager,
+      eager_async: options?.eager_async,
       tags: options?.tags,
       // chunk_size is used for large file uploads (files > 100MB)
       // Cloudinary will automatically use chunked upload when chunk_size is set
       chunk_size: 6000000, // 6MB chunks (minimum 5MB)
+      ...options,
     };
 
     return new Promise((resolve, reject) => {
@@ -128,7 +127,33 @@ export class CloudinaryService {
     });
   }
 
-  getUrl(
+  async update(
+    public_id: string,
+    options?: UploadApiOptions,
+  ): Promise<UploadApiResponse> {
+    return new Promise((resolve, reject) => {
+      cloudinary.uploader.explicit(
+        public_id,
+        {
+          ...options,
+        },
+        (
+          error: UploadApiErrorResponse | undefined,
+          result: UploadApiResponse | undefined,
+        ) => {
+          if (error) {
+            reject(new Error(error.message));
+          } else if (result) {
+            resolve(result);
+          } else {
+            reject(new Error('Update failed: no result returned'));
+          }
+        },
+      );
+    });
+  }
+
+  url(
     public_id: string,
     options?: { transformation?: Record<string, unknown> },
   ): string {
@@ -143,10 +168,15 @@ export class CloudinaryService {
    * @param public_id The Cloudinary public_id
    * @returns The public URL of the asset
    */
-  getPublicUrl(public_id: string, resource_type?: 'image' | 'video'): string {
+  getPublicUrl(
+    public_id: string,
+    resource_type?: 'image' | 'video',
+    effect?: string,
+  ): string {
     return cloudinary.url(public_id, {
       secure: true,
       resource_type: resource_type,
+      effect: effect,
     });
   }
 
