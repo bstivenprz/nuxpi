@@ -7,12 +7,19 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
+      cookieOptions: {
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
+        httpOnly: true,
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll();

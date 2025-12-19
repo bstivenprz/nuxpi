@@ -7,12 +7,10 @@ export function GoogleAuthButton() {
   async function signInWithGoogle() {
     const supabase = createClient();
 
-    const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback`;
-
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
   }
