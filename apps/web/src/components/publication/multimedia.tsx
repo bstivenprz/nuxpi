@@ -3,12 +3,18 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import Player from "next-video/player";
 import Instaplay from "player.style/instaplay/react";
 import Image from "next/image";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
+import { Button } from "@heroui/react";
+import { UnlockIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/api/axios";
+import { AssetObject } from "@/api/types/content.types";
 
 interface AssetProps {
+  id: string;
   public_id: string;
   type: "image" | "video";
   public_url: string;
@@ -18,15 +24,43 @@ interface AssetProps {
 }
 
 export function Multimedia({ assets }: { assets: AssetProps[] }) {
+  const [localAssets, setLocalAssets] = useState<AssetProps[]>(assets);
+
+  useEffect(() => {
+    setLocalAssets(assets);
+  }, [assets]);
+
+  const { mutate: unlockAsset, isSuccess: isUnlockingAsset } = useMutation({
+    mutationFn: async (assetId: string) => {
+      const result = await api.get<AssetObject>(`/assets/${assetId}/unlock`);
+      return result.data;
+    },
+    onSuccess: (unlockedAsset) => {
+      setLocalAssets((prev) =>
+        prev.map((asset) =>
+          asset.id === unlockedAsset.id
+            ? {
+                ...asset,
+                public_url: unlockedAsset.public_url,
+                placeholder_url: unlockedAsset.placeholder_url,
+                width: unlockedAsset.width ?? asset.width,
+                height: unlockedAsset.height ?? asset.height,
+              }
+            : asset,
+        ),
+      );
+    },
+  });
+
   const render = useMemo(() => {
-    if (assets.length === 0) return null;
-    return assets
+    if (localAssets.length === 0) return null;
+    return localAssets
       .map((asset) => {
         if (asset.type === "image") {
           return (
             <SwiperSlide key={asset.public_id}>
               <div
-                className="relative w-full"
+                className="relative max-w-lg w-full"
                 style={{
                   aspectRatio:
                     asset.width > 0 && asset.height > 0
@@ -34,6 +68,14 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
                       : "1 / 1",
                 }}
               >
+                {!isUnlockingAsset && (
+                  <div className="absolute inset-0 size-full flex flex-col justify-center items-center gap-4 z-10">
+                    <div className="text-white text-large font-medium">Contenido exclusivo</div>
+                    <div className="text-white/80 text-small">Para ver este contenido, debes adquirir la publicación.</div>
+                    <Button className="text-white" variant="bordered" startContent={<UnlockIcon size={16} />} onPress={() => unlockAsset(asset.id)}>Ver contenido</Button>
+                  </div>
+                )}
+                {!isUnlockingAsset && <div className="absolute inset-0 size-full bg-black/60 rounded-xl" />}
                 <Image
                   className="rounded-xl border border-default-200 w-full h-full object-contain"
                   src={asset.public_url}
@@ -72,13 +114,17 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
         }
       })
       .filter(Boolean);
-  }, [assets]);
+  }, [localAssets, unlockAsset]);
 
   // get total images
-  const totalImages = assets.filter((asset) => asset.type === "image").length;
-  const totalVideos = assets.filter((asset) => asset.type === "video").length;
+  const totalImages = localAssets.filter(
+    (asset) => asset.type === "image",
+  ).length;
+  const totalVideos = localAssets.filter(
+    (asset) => asset.type === "video",
+  ).length;
 
-  if (assets.length === 0) return null;
+  if (localAssets.length === 0) return null;
 
   return (
     <div className="relative">

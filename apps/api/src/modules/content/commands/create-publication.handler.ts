@@ -29,6 +29,37 @@ export class CreatePublicationCommandHandler
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  private readonly DELIVERY_TYPES = [
+    'upload',
+    'private',
+    'authenticated',
+  ] as const;
+
+  private async updateAssetsDeliveryTypeInBatches(
+    assets: Asset[],
+    from_type: (typeof this.DELIVERY_TYPES)[number],
+    to_type: (typeof this.DELIVERY_TYPES)[number],
+  ): Promise<void> {
+    if (!assets.length || from_type === to_type) return;
+
+    const uploader = this.cloudinaryService.cloudinary.uploader;
+
+    await Promise.all(
+      assets
+        .filter((asset) => !!asset.cloudinary_public_id)
+        .map((asset) =>
+          uploader.rename(
+            asset.cloudinary_public_id as string,
+            asset.cloudinary_public_id as string,
+            {
+              type: from_type,
+              to_type,
+            },
+          ),
+        ),
+    );
+  }
+
   async execute(command: CreatePublicationCommand): Promise<PublicationObject> {
     const { profile_id, body } = command;
     return await this.entityManager.transaction(
@@ -55,6 +86,14 @@ export class CreatePublicationCommandHandler
 
           publication.type = PublicationType.MULTIMEDIA;
           publication.assets = assets;
+
+          if (publication.audience === Audience.PAID_ONLY) {
+            await this.updateAssetsDeliveryTypeInBatches(
+              assets,
+              'upload',
+              'authenticated',
+            );
+          }
         }
 
         await transactionalEntityManager.save(publication);
@@ -96,6 +135,7 @@ export class CreatePublicationCommandHandler
 
     return this.cloudinaryService.cloudinary.url(public_id, {
       secure: true,
+      type: 'authenticated',
       resource_type: asset_type,
       transformation: transformations,
     });

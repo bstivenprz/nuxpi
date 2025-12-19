@@ -33,7 +33,7 @@ export class UploadAssetCommandHandler
     const result = await this.cloudinaryService.uploadLarge(file.buffer, {
       public_id,
       resource_type,
-      type: is_private ? 'authenticated' : 'public',
+      type: is_private ? 'authenticated' : 'upload',
       tags: [username],
       transformation: [
         {

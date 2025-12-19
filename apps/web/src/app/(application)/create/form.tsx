@@ -29,10 +29,10 @@ export function CreatePublicationForm() {
   });
 
   const handleUploadSuccess = useCallback(
-    (asset: { id: string }) => {
+    (assetId: string) => {
       const currentIds = form.getValues("assets") || [];
-      if (!currentIds.includes(asset.id)) {
-        form.setValue("assets", [...currentIds, asset.id], {
+      if (!currentIds.includes(assetId)) {
+        form.setValue("assets", [...currentIds, assetId], {
           shouldDirty: true,
         });
       }
@@ -41,12 +41,12 @@ export function CreatePublicationForm() {
   );
 
   const handleRemoveCallback = useCallback(
-    (key: string, asset?: { id: string }) => {
-      if (asset) {
+    (key: string, assetId?: string) => {
+      if (assetId) {
         const currentIds = form.getValues("assets") || [];
         form.setValue(
           "assets",
-          currentIds.filter((id) => id !== asset.id),
+          currentIds.filter((id) => id !== assetId),
           { shouldDirty: true }
         );
       }

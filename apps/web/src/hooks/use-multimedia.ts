@@ -2,7 +2,6 @@ import React from "react";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/api/axios";
 import { addToast } from "@heroui/react";
-import { AssetObject } from "@/api/types/content.types";
 
 export interface Multimedia {
   key: string;
@@ -22,29 +21,33 @@ export async function mutationFnUploadMultimedia({
   width,
   height,
   key,
+  exclusive,
 }: {
   file: File;
   width: number;
   height: number;
   key: string;
+  exclusive: boolean;
 }) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("width", width.toString());
   formData.append("height", height.toString());
-  const response = await api.post<AssetObject>("/assets/upload", formData, {
+  formData.append("exclusive", exclusive.toString());
+  const response = await api.post<string>("/assets/upload", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return { asset: response.data, key };
+  return { assetId: response.data, key };
 }
 
 export interface UseMultimediaOptions {
-  onUploadSuccess?: (asset: AssetObject, key: string) => void;
-  onRemove?: (key: string, asset?: AssetObject) => void;
+  onUploadSuccess?: (assetId: string, key: string) => void;
+  onRemove?: (key: string, assetId?: string) => void;
+  exclusive?: boolean;
 }
 
 export function useMultimedia(options?: UseMultimediaOptions) {
-  const { onUploadSuccess, onRemove: onRemoveCallback } = options || {};
+  const { onUploadSuccess, onRemove: onRemoveCallback, exclusive = false } = options || {};
   const [multimedia, setMultimedia] = React.useState<Multimedia[]>([]);
   const counterRef = React.useRef(0);
   const uploadedKeysRef = React.useRef<Set<string>>(new Set());
@@ -228,13 +231,8 @@ export function useMultimedia(options?: UseMultimediaOptions) {
   const { mutate: uploadFile } = useMutation({
     mutationKey: ["upload-multimedia"],
     mutationFn: mutationFnUploadMultimedia,
-    onSuccess: ({ asset, key }) => {
-      setMultimedia((prev) =>
-        prev.map((m) =>
-          m.key === key ? { ...m, previewUrl: asset.public_url } : m
-        )
-      );
-      onUploadSuccess?.(asset, key);
+    onSuccess: ({ assetId, key }) => {
+      onUploadSuccess?.(assetId, key);
     },
     onError: (error, variables) => {
       const key = variables.key;
@@ -274,6 +272,7 @@ export function useMultimedia(options?: UseMultimediaOptions) {
         key: media.key,
         width: media.width,
         height: media.height,
+        exclusive,
       });
     }
 

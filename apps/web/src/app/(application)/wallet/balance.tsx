@@ -7,17 +7,33 @@ import { Heading } from "@/components/heading";
 import { Alert } from "@heroui/alert";
 import { Button } from "@heroui/button";
 import { Skeleton } from "@heroui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/axios";
+import { Chip } from "@heroui/react";
 
-interface BalanceProps {
-  hideActions?: boolean;
+interface WalletBalanceResponse {
+  balance: number;
+  retained_balance: number;
 }
 
-export function Balance({ hideActions = false }: BalanceProps) {
-  const balance = "{balance}";
-  const retained_balance = 1;
-  const is_allow_withdraw = false;
+const queryFn =  async () => {
+  const response = await api.get<WalletBalanceResponse>("/wallet/balance");
+  return response.data;
+}
 
-  const isLoading = false;
+export function Balance({ hideActions = false }: { hideActions?: boolean }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["wallet", "balance"],
+    queryFn,
+    placeholderData: {
+      balance: 0,
+      retained_balance: 0,
+    },
+    initialData: {
+      balance: 0,
+      retained_balance: 0,
+    }
+  });
 
   return (
     <div className="rounded-medium border-default-200 mobile:p-2 desktop:p-4 space-y-6 border">
@@ -25,7 +41,7 @@ export function Balance({ hideActions = false }: BalanceProps) {
         <Heading level="caption">Balance disponible</Heading>
         <Skeleton isLoaded={!isLoading}>
           <Heading className="desktop:wide:mb-0" level="h2">
-            {balance} TK
+            {data?.balance} TK
           </Heading>
         </Skeleton>
       </div>
@@ -33,8 +49,8 @@ export function Balance({ hideActions = false }: BalanceProps) {
       <Alert
         variant="flat"
         title="Saldo retenido"
-        description={`${`{retained_balance}`} TK`}
-        isVisible={!!retained_balance && retained_balance > 0}
+        description={`${data?.retained_balance} TK`}
+        isVisible={!!data?.retained_balance && data?.retained_balance > 0}
       />
 
       {!hideActions && (
@@ -54,7 +70,7 @@ export function Balance({ hideActions = false }: BalanceProps) {
             className="no-underline"
             variant="bordered"
             startContent={<ArrowDownLeftIcon />}
-            isDisabled={!is_allow_withdraw}
+            isDisabled={!data?.balance || data?.balance <= 0}
             href="/wallet/withdraw"
             fullWidth
           >
@@ -64,4 +80,33 @@ export function Balance({ hideActions = false }: BalanceProps) {
       )}
     </div>
   );
+}
+
+export function BalanceBadge() {
+  const { data } = useQuery({
+    queryKey: ["wallet", "balance"],
+    queryFn,
+    placeholderData: {
+      balance: 0,
+      retained_balance: 0,
+    },
+    initialData: {
+      balance: 0,
+      retained_balance: 0,
+    }
+  });
+
+  return (
+    <Chip
+    classNames={{
+      content: "font-semibold",
+      base: "px-2",
+    }}
+    size="sm"
+    color="danger"
+    radius="none"
+  >
+    {data.balance} TK
+  </Chip>
+  )
 }

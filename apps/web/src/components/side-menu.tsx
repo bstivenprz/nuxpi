@@ -13,13 +13,13 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@heroui/badge";
-import { Chip } from "@heroui/chip";
 
 import { MenuButton } from "./menu-button";
 import { MenuHeader } from "./menu-header";
 
 import { fetchAPI } from "@/api/fetch";
 import { CurrentProfileObject } from "@/api/types/current-profile.object";
+import { BalanceBadge } from "@/app/(application)/wallet/balance";
 
 export async function SideMenu() {
   const response = await fetchAPI("/profile", { cache: "no-store" });
@@ -83,20 +83,7 @@ export async function SideMenu() {
         <MenuButton
           href="/wallet"
           startContent={<WalletMinimalIcon />}
-          endContent={
-            <Chip
-              classNames={{
-                content: "font-semibold",
-                base: "px-2",
-              }}
-              size="sm"
-              color="danger"
-              radius="none"
-            >
-              {/* {balance?.balance ?? 0} TK */}
-              100 TK
-            </Chip>
-          }
+          endContent={<BalanceBadge />}
         >
           Billetera
         </MenuButton>

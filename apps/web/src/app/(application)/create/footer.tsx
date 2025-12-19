@@ -59,7 +59,6 @@ export function Footer({ isPending }: { isPending: boolean }) {
         className="mt-6"
         type="submit"
         color="primary"
-        size="lg"
         isDisabled={!isDirty || isUploadingMultimedia}
         isLoading={isPending}
         fullWidth

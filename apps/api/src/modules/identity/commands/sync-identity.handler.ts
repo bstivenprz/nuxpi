@@ -1,16 +1,20 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import { SyncIdentityCommand } from './sync-identity.command';
 import { Identity } from '../entities/identity.entity';
 import { SupabaseService } from '@/services/supabase/supabase.service';
 import { Account } from '@/modules/profile/entities/account.entity';
 import { Profile } from '@/modules/profile/entities/profile.entity';
+import { UserCreatedEvent } from '../events/user-created.event';
 
 @CommandHandler(SyncIdentityCommand)
 export class SyncIdentityCommandHandler
   implements ICommandHandler<SyncIdentityCommand, void>
 {
-  constructor(private readonly supabase: SupabaseService) {}
+  constructor(
+    private readonly supabase: SupabaseService,
+    private readonly eventBus: EventBus,
+  ) {}
 
   async execute(command: SyncIdentityCommand): Promise<void> {
     const { email, name, username, uuid } = command;
@@ -37,5 +41,7 @@ export class SyncIdentityCommandHandler
       profile_id: account.profile.id,
       is_synced: true,
     });
+
+    this.eventBus.publish(new UserCreatedEvent(account));
   }
 }

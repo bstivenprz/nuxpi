@@ -47,6 +47,7 @@ export default function PublicationPage() {
       >
         <Multimedia
           assets={publication.assets.map((asset) => ({
+            id: asset.id,
             public_id: asset.cloudinary_public_id,
             public_url: asset.public_url,
             placeholder_url: asset.placeholder_url,

@@ -97,6 +97,8 @@ export class GetPublicationQueryHandler
 
     return this.cloudinaryService.cloudinary.url(public_id, {
       secure: true,
+      type: 'authenticated',
+      sign_url: true,
       resource_type: asset_type,
       transformation: transformations,
     });
