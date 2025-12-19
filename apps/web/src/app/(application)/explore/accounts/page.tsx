@@ -1,16 +1,14 @@
-import { EmptyState } from "@/components/empty-state";
+import { Suspense } from "react";
 import { DiscoverCreators } from "./discover-creators";
 import { DiscoverProfiles } from "./discover-profiles";
 
 export default function Accounts() {
   return (
-    <div className="space-y-4">
-      {(
-        <>
-          <DiscoverCreators />
-          <DiscoverProfiles />
-        </>
-      ) || <EmptyState>No hay creadores o perfiles para ti.</EmptyState>}
-    </div>
+    <Suspense>
+      <div className="space-y-4">
+        <DiscoverCreators />
+        <DiscoverProfiles />
+      </div>
+    </Suspense>
   );
 }

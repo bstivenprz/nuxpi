@@ -28,13 +28,13 @@ export function PaymentButton({ amount = 1, children }: PaymentButtonProps) {
     //   },
     // })
 
-    checkout.open((event) => {
-      router.push(
-        `/wallet/checkout/status?reference=${event.transaction.reference}`
-      );
+    // checkout.open((event) => {
+    //   router.push(
+    //     `/wallet/checkout/status?reference=${event.transaction.reference}`
+    //   );
 
       // refetchBalanceQuery()
-    });
+    // });
   }
 
   return (

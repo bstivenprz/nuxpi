@@ -26,7 +26,12 @@ export function AccountSuggestions() {
             key={`suggestion-item-${index}`}
             style={{ width: "auto" }}
           >
-            <AccountCard name={profile.name} username={profile.username} picture={profile.picture} followers={profile.followers_count} />
+            <AccountCard
+              name={profile.name}
+              username={profile.username}
+              picture={profile.picture}
+              followers={profile.followers_count ?? 0}
+            />
           </SwiperSlide>
         ))}
       </Swiper>

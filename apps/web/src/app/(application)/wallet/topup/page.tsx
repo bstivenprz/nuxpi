@@ -1,9 +1,7 @@
-import { ErrorBoundary } from "react-error-boundary";
-
 import { Anchor } from "@/components/anchor";
 import { Header } from "@/components/header";
 
-import { PaymentButton, PaymentButtonError } from "./payment-button";
+import { PaymentButton } from "./payment-button";
 import { SelectionTopUp } from "./selection";
 
 export default function Topup() {

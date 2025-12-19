@@ -4,8 +4,15 @@ import { EmptyState } from "@/components/empty-state";
 import { ViewToggle } from "@/components/view-toggle";
 import { Button } from "@heroui/button";
 import { RadioGroup } from "@heroui/radio";
+import { useState } from "react";
 
 export function Collection() {
+  const [view, setView] = useState<"grid" | "list">("grid");
+
+  function toggleView() {
+    setView((prev) => (prev === "grid" ? "list" : "grid"));
+  }
+
   return (
     <section>
       <div className="flex items-center">
@@ -19,7 +26,7 @@ export function Collection() {
           <ChipRadio value="expired">Expirados 2</ChipRadio>
           <ChipRadio value="expiring">Próximo a expirar 2</ChipRadio>
         </RadioGroup>
-        <ViewToggle />
+        <ViewToggle view={view} onChangeView={toggleView} />
       </div>
 
       <div>

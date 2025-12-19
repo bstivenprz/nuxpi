@@ -18,7 +18,7 @@ export function MessageMultimedia({
       {items.map((item) => (
         <MultimediaPreview
           key={item.key}
-          src={item.thumbnail}
+          src={item.thumbnail ?? ""}
           onRemove={() => onRemove?.(item.key)}
         />
       ))}

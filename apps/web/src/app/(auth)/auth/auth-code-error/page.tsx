@@ -1,4 +1,7 @@
-import { Alert, Button } from "@heroui/react";
+"use client";
+
+import { Button } from "@heroui/button";
+import { Alert } from "@heroui/alert";
 import Link from "next/link";
 
 export default function AuthCodeError() {

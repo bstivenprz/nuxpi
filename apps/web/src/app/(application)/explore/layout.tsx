@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import React from "react";
+import React, { Suspense } from "react";
 
 import { SearchHeader } from "@/components/search-header";
 import { Tab, Tabs } from "@heroui/tabs";
@@ -16,7 +16,9 @@ export default function ExploreLayout({
 
   return (
     <main>
-      <SearchHeader />
+      <Suspense>
+        <SearchHeader />
+      </Suspense>
       <Tabs
         classNames={{
           tab: "font-semibold data-[hover-unselected=true]:opacity-hover",
