@@ -14,7 +14,6 @@ import { CreatePublicationBody } from '../objects/create-publication.object';
 import { Session } from '@/auth/decorators/session.decorator';
 import { GetPublicationQuery } from '../queries/get-publication.query';
 import { PaginationQuery } from '@/common/models/pagination';
-import { ProfileContentQuery } from '../queries/profile-content.query';
 import { RemovePublicationLikeCommand } from '../commands/remove-publication-like.command';
 import { AddPublicationLikeCommand } from '../commands/add-publication-like.command';
 import { CreateCommentCommand } from '../commands/create-comment.command';
@@ -62,17 +61,6 @@ export class PublicationsController {
   ) {
     return this.commandBus.execute(
       new DeletePublicationCommand(profile_id, publication_id),
-    );
-  }
-
-  @Get('profile/:username')
-  profileContent(
-    @Session('profile_id') profile_id: string,
-    @Param('username') username: string,
-    @Query() pagination: PaginationQuery,
-  ) {
-    return this.queryBus.execute(
-      new ProfileContentQuery(profile_id, username, pagination),
     );
   }
 

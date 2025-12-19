@@ -12,14 +12,14 @@ import {
   WalletMinimalIcon,
 } from "lucide-react";
 
-import { Badge } from "@heroui/badge";
-
 import { MenuButton } from "./menu-button";
 import { MenuHeader } from "./menu-header";
 
 import { fetchAPI } from "@/api/fetch";
 import { CurrentProfileObject } from "@/api/types/current-profile.object";
 import { BalanceBadge } from "@/app/(application)/wallet/balance";
+import { CounterNotifications } from "./counter-notifications";
+import { CounterMessages } from "./counter-messages";
 
 export async function SideMenu() {
   const response = await fetchAPI("/profile", { cache: "no-store" });
@@ -43,16 +43,9 @@ export async function SideMenu() {
         <MenuButton
           href="/notifications"
           startContent={
-            <Badge
-              color="danger"
-              content="12"
-              placement="top-right"
-              size="sm"
-              showOutline={false}
-              isDot
-            >
+            <CounterNotifications>
               <HeartIcon />
-            </Badge>
+            </CounterNotifications>
           }
         >
           Notifications
@@ -60,16 +53,9 @@ export async function SideMenu() {
         <MenuButton
           href="/messages"
           startContent={
-            <Badge
-              color="danger"
-              content="1"
-              placement="top-right"
-              size="sm"
-              showOutline={false}
-              isDot
-            >
+            <CounterMessages>
               <MessagesSquareIcon />
-            </Badge>
+            </CounterMessages>
           }
         >
           Mensajes

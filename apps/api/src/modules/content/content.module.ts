@@ -4,9 +4,12 @@ import { join } from 'path';
 import { PublicationsController } from './controllers/publications.controller';
 import { AssetsController } from './controllers/assets.controller';
 import { ContentMapper } from './content.mapper';
-import { CloudinaryService } from '@/services/cloudinary/cloudinary.service';
-import Redis from 'ioredis';
-import { RedisConfig } from '@/config/redis.config';
+import { RedisModule } from '@/services/redis/redis.module';
+import { EngagementRankerService } from './services/engagement';
+import { CleanUpFeedTask } from './tasks/cleanup-feed.task';
+import { DiscoverController } from './controllers/discover.controller';
+import { ContentProfileController } from './controllers/profile.controller';
+import { CloudinaryModule } from '@/services/cloudinary/cloudinary.module';
 
 @Module({})
 export class ContentModule {
@@ -17,24 +20,16 @@ export class ContentModule {
 
     return {
       module: ContentModule,
-      imports: [
-        {
-          
-        }
+      imports: [RedisModule, CloudinaryModule],
+      controllers: [
+        PublicationsController,
+        AssetsController,
+        DiscoverController,
+        ContentProfileController,
       ],
-      controllers: [PublicationsController, AssetsController],
       providers: [
-        {
-          provide: 'REDIS_CLIENT',
-          useFactory: (config: RedisConfig) => {
-            return new Redis({
-              host: config.host,
-              port: config.port,
-              password: config.password,
-            });
-          },
-        },
-        CloudinaryService,
+        EngagementRankerService,
+        CleanUpFeedTask,
         ContentMapper,
         ...handlers,
       ],

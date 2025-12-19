@@ -6,7 +6,6 @@ import {
   ModalContent,
   ModalHeader,
   Spinner,
-  User,
 } from "@heroui/react";
 import { EmptyState } from "../empty-state";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +14,6 @@ import React from "react";
 import { PaginationObject } from "@/api/types/pagination.object";
 import { PublicProfileObject } from "@/api/types/public-profile.object";
 import { AccountBox } from "../account-box";
-import { numberFormat } from "@/utils/number-format";
 
 export function FollowersPopUp({
   name,
@@ -67,6 +65,7 @@ export function FollowersPopUp({
             key={`follower-user-${profile.username}`}
             name={profile.name}
             username={profile.username}
+            picture={profile.picture}
             isFollowing={profile.is_following}
             hideButton={profile.is_owner}
           />

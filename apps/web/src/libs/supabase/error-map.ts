@@ -14,7 +14,7 @@ export function toSupabaseErrorMap(error: unknown): AuthErrorMap {
   }
 
   if (isAuthApiError(error)) {
-    const anyError = error as any;
+    const anyError = error as unknown as { code: AuthErrorCode | string };
     const code = anyError.code as AuthErrorCode | string | undefined;
 
     if (code && code in AUTH_ERROR_MESSAGES) {
@@ -40,7 +40,7 @@ export function toSupabaseErrorMap(error: unknown): AuthErrorMap {
   return {
     title: "Error al autenticarse",
     description:
-      (error as any)?.message ??
+      (error as unknown as { message: string })?.message ??
       "Ocurrió un error inesperado. Intenta de nuevo.",
   };
 }

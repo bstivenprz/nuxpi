@@ -11,10 +11,10 @@ type Author = {
   picture?: string;
 };
 
-type NotificationProps = {
+export type NotificationProps = {
   author: Author;
   content: string;
-  href: string;
+  href?: string;
   notifiedAt?: number;
   endContent?: React.ReactNode;
   isReaded?: boolean;
@@ -30,7 +30,7 @@ export default function Notification({
   notifiedAt = new Date().getTime(),
   endContent,
   isReaded,
-}: Partial<NotificationProps>) {
+}: NotificationProps) {
   return (
     <div
       className={cn(

@@ -83,8 +83,8 @@ export class FollowersQueryHandler
     );
 
     return new PaginationObject(
-      profiles.map((p, index) => ({
-        ...p,
+      profiles.map((profile, index) => ({
+        ...profile,
         is_following:
           raw[index].is_following === true || raw[index].is_following === 1,
         is_owner: raw[index].is_owner === true || raw[index].is_owner === 1,

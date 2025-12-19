@@ -13,7 +13,7 @@ export class SendBroadcastCommandHandler
   constructor(private eventBus: EventBus) {}
 
   async execute(command: SendBroadcastCommand): Promise<void> {
-    const { current_profile_id, target_channel, body } = command;
+    const { current_profile_id } = command;
 
     const current_profile = await Profile.findOneBy({ id: current_profile_id });
 

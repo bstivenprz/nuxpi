@@ -16,18 +16,24 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/api/axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function OptionsDropdown({
   isOwner,
   externalId,
+  initialIsPinned,
 }: {
   isOwner?: boolean;
   externalId: string;
+  initialIsPinned?: boolean;
 }) {
+  const [isPinned, setIsPinned] = useState(initialIsPinned);
+
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { mutate: deletePublication } = useMutation({
     mutationFn: (id: string) => api.delete(`/publications/${id}`),
@@ -47,16 +53,44 @@ export function OptionsDropdown({
   });
 
   function copyPublicationURLToClipboard() {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(`${window.location.origin}/p/${externalId}`);
     addToast({
       title: "Enlace copiado.",
     });
   }
 
-  function togglePinPublication() {
-    addToast({
-      title: "Publicación fijada.",
-    });
+  async function pinPublication() {
+    try {
+      await api.post(`/content/profile/pin/${externalId}`);
+      addToast({
+        title: "Publicación fijada.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["publications"] });
+      setIsPinned(true);
+    } catch {
+      addToast({
+        title: "Error al fijar la publicación.",
+        description: "Por favor, intenta nuevamente.",
+        color: "danger",
+      });
+    }
+  }
+
+  async function unpinPublication() {
+    try {
+      await api.delete(`/content/profile/pin/${externalId}`);
+      addToast({
+        title: "Publicación desfijada.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["publications"] });
+      setIsPinned(false);
+    } catch {
+      addToast({
+        title: "Error al desfijar la publicación.",
+        description: "Por favor, intenta nuevamente.",
+        color: "danger",
+      });
+    }
   }
 
   function toggleBookmarkPublication() {
@@ -84,14 +118,14 @@ export function OptionsDropdown({
           <DropdownItem
             endContent={<PinIcon size={18} />}
             key="pin"
-            onPress={togglePinPublication}
+            onPress={() => (isPinned ? unpinPublication() : pinPublication())}
           >
-            Fijar en el perfil
+            {isPinned ? "Desfijar" : "Fijar"}
           </DropdownItem>
         ) : null}
         <DropdownItem
           endContent={<BookmarkIcon size={18} />}
-          showDivider
+          showDivider={isOwner}
           key="save"
           onPress={toggleBookmarkPublication}
         >

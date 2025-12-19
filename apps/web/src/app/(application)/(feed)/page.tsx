@@ -2,7 +2,7 @@ import { AccountSuggestions } from "@/components/account-suggestions";
 import { CreateTrigger } from "@/components/create-trigger";
 
 import { Announcements } from "./announcements";
-import { FeedEmpty } from "./feed-empty";
+import { FeedContent } from "./feed-content";
 
 export default function Feed() {
   return (
@@ -10,7 +10,7 @@ export default function Feed() {
       <CreateTrigger />
       <Announcements />
       <AccountSuggestions />
-      <FeedEmpty />
+      <FeedContent />
     </main>
   );
 }

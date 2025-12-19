@@ -9,7 +9,9 @@ import { Follow } from '@/modules/profile/entities/follow.entity';
 import { PublicProfileObject } from '@/modules/profile/objects/public-profile.object';
 
 @QueryHandler(ListContactsQuery)
-export class ListContactsQueryHandler implements IQueryHandler<ListContactsQuery, PublicProfileObject[]> {
+export class ListContactsQueryHandler
+  implements IQueryHandler<ListContactsQuery, PublicProfileObject[]>
+{
   @InjectMapper() mapper: Mapper;
 
   constructor() {}

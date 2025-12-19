@@ -9,12 +9,17 @@ import {
   PaginationObject,
 } from '@/common/models/pagination';
 import { PublicationObject } from '../objects/publication.object';
-import { Audience, Publication } from '../entities/publication.entity';
+import {
+  Audience,
+  Publication,
+  PublicationType,
+} from '../entities/publication.entity';
 import { CloudinaryService } from '@/services/cloudinary/cloudinary.service';
 import { Like } from '../entities/like.entity';
-import { In } from 'typeorm';
+import { Equal, In } from 'typeorm';
 import { Asset, AssetType } from '../entities/asset.entity';
 import { AssetObject } from '../objects/asset.object';
+import { PinnedPublication } from '../entities/pinned-publication.entity';
 
 @QueryHandler(ProfileContentQuery)
 export class ProfileContentQueryHandler
@@ -28,12 +33,21 @@ export class ProfileContentQueryHandler
   async execute(
     query: ProfileContentQuery,
   ): Promise<PaginationObject<PublicationObject>> {
-    const { current_profile_id, username, pagination } = query;
+    const { current_profile_id, username, type, pagination, media_type } =
+      query;
 
     const [publications, total_count] = await Publication.findAndCount({
       where: {
         author: {
           username,
+        },
+        type:
+          type === 'multimedia'
+            ? PublicationType.MULTIMEDIA
+            : PublicationType.TEXT,
+        assets: {
+          type:
+            media_type === 'all' ? undefined : Equal(media_type as AssetType),
         },
       },
       relations: {
@@ -72,93 +86,67 @@ export class ProfileContentQueryHandler
       select: ['publication'],
     }).then((likes) => new Set(likes.map((like) => like.publication.id)));
 
-    const mappedPublications = this.mapper.mapArray(
+    const pinned_publication = await PinnedPublication.findOne({
+      where: {
+        profile: {
+          id: current_profile_id,
+        },
+      },
+      relations: {
+        publication: {
+          author: true,
+          assets: true,
+        },
+      },
+    });
+
+    if (pinned_publication) {
+      const pinned_index = publications.findIndex(
+        (publication) => publication.id === pinned_publication.publication.id,
+      );
+      if (pinned_index > -1) {
+        const [pinned_publication] = publications.splice(pinned_index, 1);
+        publications.unshift(pinned_publication);
+      }
+    }
+
+    const mapped_publications = this.mapper.mapArray(
       publications,
       Publication,
       PublicationObject,
     );
 
-    const transformedPublications = mappedPublications.map((pub, index) => {
-      const source = publications[index];
-      return {
-        ...pub,
-        assets: this.mapper
-          .mapArray(source.assets, Asset, AssetObject)
-          .map((asset) => ({
-            ...asset,
-            public_url: this.getAssetPublicUrl(
-              asset.cloudinary_public_id,
-              asset.type,
-              source.audience === Audience.PAID_ONLY,
-            ),
-            placeholder_url: this.cloudinaryService.getPlaceholderUrl(
-              asset.cloudinary_public_id,
-            ),
-          })),
-        is_owner: source.author.id === current_profile_id,
-        is_liked: liked_publications_ids.has(source.id),
-      };
-    });
+    const transformed_publications = mapped_publications.map(
+      (publication, index) => {
+        const source = publications[index];
+        return {
+          ...publication,
+          assets: this.mapper
+            .mapArray(source.assets, Asset, AssetObject)
+            .map((asset) => ({
+              ...asset,
+              public_url: this.cloudinaryService.get_public_url(
+                asset.cloudinary_public_id,
+                asset.type === AssetType.IMAGE ? 'image' : 'video',
+                source.audience === Audience.PAID_ONLY,
+              ),
+              placeholder_url: this.cloudinaryService.get_placeholder_url(
+                asset.cloudinary_public_id,
+              ),
+            })),
+          is_owner: source.author.id === current_profile_id,
+          is_liked: liked_publications_ids.has(source.id),
+          is_pinned: source.id === pinned_publication?.publication.id,
+        };
+      },
+    );
 
     return new PaginationObject(
-      transformedPublications,
+      transformed_publications,
       new PaginationMetaObject({
         options: pagination,
         total_count,
       }),
     );
-  }
-
-  private getAssetPublicUrl(
-    public_id: string,
-    asset_type: AssetType,
-    isPaidOnly: boolean,
-  ): string {
-    if (!isPaidOnly) {
-      return this.cloudinaryService.cloudinary.url(public_id, {
-        secure: true,
-        resource_type: asset_type,
-      });
-    }
-
-    const transformations =
-      asset_type === AssetType.IMAGE
-        ? this.imageUrlTransformations()
-        : this.videoUrlTransformations();
-
-    return this.cloudinaryService.cloudinary.url(public_id, {
-      secure: true,
-      type: 'authenticated',
-      sign_url: true,
-      resource_type: asset_type,
-      transformation: transformations,
-    });
-  }
-
-  private imageUrlTransformations(): Array<Record<string, unknown>> {
-    return [
-      {
-        effect: 'blur:2000',
-        quality: 'auto:low',
-        fetch_format: 'auto',
-      },
-    ];
-  }
-
-  private videoUrlTransformations(): Array<Record<string, unknown>> {
-    return [
-      {
-        format: 'webp',
-        duration: '5',
-        start_offset: '0',
-        fps: '20',
-        width: 640,
-        height: 360,
-        crop: 'fill',
-        effect: 'blur:2000',
-        quality: 'auto:low',
-        flags: 'animated.awebp',
-      },
-    ];
   }
 }

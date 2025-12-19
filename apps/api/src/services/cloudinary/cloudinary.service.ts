@@ -82,7 +82,7 @@ export class CloudinaryService {
     }
   }
 
-  async uploadLarge(
+  async upload_large(
     file: Buffer | string,
     options?: UploadApiOptions,
   ): Promise<UploadApiResponse> {
@@ -168,15 +168,29 @@ export class CloudinaryService {
    * @param public_id The Cloudinary public_id
    * @returns The public URL of the asset
    */
-  getPublicUrl(
+  get_public_url(
     public_id: string,
     resource_type?: 'image' | 'video',
-    effect?: string,
+    is_exclusive?: boolean,
   ): string {
-    return cloudinary.url(public_id, {
+    if (!is_exclusive) {
+      return this.cloudinary.url(public_id, {
+        secure: true,
+        resource_type,
+      });
+    }
+
+    const transformations =
+      resource_type === 'image'
+        ? this.imageUrlTransformations()
+        : this.videoUrlTransformations();
+
+    return this.cloudinary.url(public_id, {
+      type: 'authenticated',
       secure: true,
-      resource_type: resource_type,
-      effect: effect,
+      sign_url: true,
+      resource_type,
+      transformation: transformations,
     });
   }
 
@@ -186,7 +200,7 @@ export class CloudinaryService {
    * @param public_id The Cloudinary public_id
    * @returns A low-quality placeholder URL
    */
-  getPlaceholderUrl(public_id: string): string {
+  get_placeholder_url(public_id: string): string {
     return cloudinary.url(public_id, {
       secure: true,
       transformation: [
@@ -209,7 +223,7 @@ export class CloudinaryService {
    * @returns A base64 data URL (e.g., "data:image/jpeg;base64,...")
    */
   async getPlaceholderDataUrl(public_id: string): Promise<string> {
-    const placeholderUrl = this.getPlaceholderUrl(public_id);
+    const placeholderUrl = this.get_placeholder_url(public_id);
 
     try {
       const response = await fetch(placeholderUrl);
@@ -228,5 +242,32 @@ export class CloudinaryService {
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
       return `data:image/png;base64,${fallbackBase64}`;
     }
+  }
+
+  private imageUrlTransformations(): Array<Record<string, unknown>> {
+    return [
+      {
+        effect: 'blur:2000',
+        quality: 'auto:low',
+        fetch_format: 'auto',
+      },
+    ];
+  }
+
+  private videoUrlTransformations(): Array<Record<string, unknown>> {
+    return [
+      {
+        format: 'webp',
+        duration: '5',
+        start_offset: '0',
+        fps: '20',
+        width: 640,
+        height: 360,
+        crop: 'fill',
+        effect: 'blur:2000',
+        quality: 'auto:low',
+        flags: 'animated.awebp',
+      },
+    ];
   }
 }

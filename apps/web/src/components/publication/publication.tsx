@@ -53,7 +53,7 @@ export function Publication({
   return (
     <div className="py-4">
       {isPinned && (
-        <div className="text-small text-default-600 px-2 pt-2">
+        <div className="text-small text-default-600 py-3">
           <PinIcon size={16} className="mr-1 inline-block" />
           Publicación fijada
         </div>
@@ -78,7 +78,7 @@ export function Publication({
                 {author.username}
               </Link>
             </div>
-            <OptionsDropdown isOwner={isOwner} externalId={externalId} />
+            <OptionsDropdown isOwner={isOwner} externalId={externalId} initialIsPinned={isPinned} />
           </div>
 
           {caption && <p className="mobile:text-base/5l">{caption}</p>}

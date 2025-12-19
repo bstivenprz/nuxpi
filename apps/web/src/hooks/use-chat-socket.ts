@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { api } from "@/api/axios";
 import { MessageObject } from "@/api/types/chat.types";
@@ -23,6 +23,8 @@ export function useChatSocket({
   profileId,
   enabled = true,
 }: ChatSocketOptions): ChatSocket {
+  const [isConnected, setIsConnected] = useState(false);
+
   const queryClient = useQueryClient();
   const socketRef = useRef<Socket | null>(null);
 
@@ -32,7 +34,7 @@ export function useChatSocket({
       const url = new URL(baseURL);
       url.pathname = "";
       return `${url.origin}/chat`;
-    } catch (_error) {
+    } catch {
       return `${fallbackApiUrl.replace(/\/api$/, "")}/chat`;
     }
   }, []);
@@ -49,7 +51,7 @@ export function useChatSocket({
           const existingIndex = data.findIndex(
             (item) =>
               item.is_owner === message.is_owner &&
-              item.content === message.content,
+              item.content === message.content
           );
 
           if (existingIndex >= 0) {
@@ -62,10 +64,10 @@ export function useChatSocket({
             ...prev,
             data,
           };
-        },
+        }
       );
     },
-    [conversationId, queryClient],
+    [conversationId, queryClient]
   );
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export function useChatSocket({
       "conversation.history",
       (history: PaginationObject<MessageObject>) => {
         queryClient.setQueryData(["messages", conversationId], history);
-      },
+      }
     );
 
     socket.on("message.sent", (message: MessageObject) => {
@@ -119,11 +121,27 @@ export function useChatSocket({
         content,
       });
     },
-    [conversationId],
+    [conversationId]
   );
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
+
+    setIsConnected(socket.connected);
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+    };
+  }, [conversationId, enabled, profileId, wsUrl]);
 
   return {
     sendMessage,
-    isConnected: Boolean(socketRef.current?.connected),
-  };
+    isConnected,
+  } as const;
 }

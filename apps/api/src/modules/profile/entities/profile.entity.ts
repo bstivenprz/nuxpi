@@ -27,6 +27,9 @@ export class Profile extends AuditableEntity {
   @Column({ nullable: true })
   picture?: string | null;
 
+  @Column({ default: false })
+  is_creator: boolean;
+
   @Column({ default: 0 })
   followers_count?: number;
 }

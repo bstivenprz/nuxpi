@@ -30,7 +30,7 @@ export class UploadAssetCommandHandler
 
     const public_id = `${resource_type}s/${id}`;
 
-    const result = await this.cloudinaryService.uploadLarge(file.buffer, {
+    const result = await this.cloudinaryService.upload_large(file.buffer, {
       public_id,
       resource_type,
       type: is_private ? 'authenticated' : 'upload',

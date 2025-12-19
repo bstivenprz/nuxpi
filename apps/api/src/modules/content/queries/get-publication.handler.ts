@@ -65,7 +65,7 @@ export class GetPublicationQueryHandler
       );
       mapped.placeholder_url =
         placeholderDataUrls[index] ||
-        this.cloudinaryService.getPlaceholderUrl(asset.cloudinary_public_id);
+        this.cloudinaryService.get_placeholder_url(asset.cloudinary_public_id);
       return mapped;
     });
 

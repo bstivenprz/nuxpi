@@ -29,7 +29,6 @@ export default function ExploreLayout({
       >
         <Tab key="/explore/for-you" href="/explore/for-you" title="Para ti" />
         <Tab key="/explore/accounts" href="/explore/accounts" title="Cuentas" />
-        <Tab key="/explore/topics" href="/explore/topics" title="Topics" />
       </Tabs>
 
       {children}

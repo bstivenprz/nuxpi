@@ -6,5 +6,7 @@ export class ProfileContentQuery implements IQuery {
     readonly current_profile_id: string,
     readonly username: string,
     readonly pagination: PaginationQuery,
+    readonly type: 'all' | 'multimedia',
+    readonly media_type: 'all' | 'image' | 'video',
   ) {}
 }

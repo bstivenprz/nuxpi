@@ -4,31 +4,30 @@ import { Header } from "@/components/header";
 import { MessageTextarea } from "@/components/message-textarea/message-textarea";
 import { Avatar } from "@heroui/react";
 import { notFound, useParams } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/api/axios";
 import { Messages } from "./messages";
 import { ConversationObject } from "@/api/types/chat.types";
-import { PaginationObject } from "@/api/types/response.types";
-import { MessageObject } from "@/api/types/chat.types";
 import { useChatSocket } from "@/hooks/use-chat-socket";
-import { useProfileId } from "@/hooks/use-profile-id";
 
 export default function Chat() {
-  const params = useParams<{ username: string }>()
-  const queryClient = useQueryClient()
-  const profileId = useProfileId()
+  const params = useParams<{ username: string }>();
 
-  const { data: conversation, isLoading, isError } = useQuery({
-    queryKey: ['conversation', params.username],
+  const {
+    data: conversation,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["conversation", params.username],
     queryFn: () => api<ConversationObject>(`/conversation/${params.username}`),
-    select: response => response.data
-  })
+    select: (response) => response.data,
+  });
 
   const { sendMessage: sendMessageWs } = useChatSocket({
     conversationId: conversation?.id,
-    profileId,
-    enabled: Boolean(conversation?.id && profileId),
-  })
+    profileId: "",
+    enabled: Boolean(conversation?.id && ""),
+  });
 
   const { mutate: sendMessage } = useMutation({
     mutationFn: async (message: string) => {
@@ -91,8 +90,8 @@ export default function Chat() {
     sendMessage(message);
   }
 
-  if (isError) return notFound()
-  if (!conversation || isLoading) return <>Cargando...</>
+  if (isError) return notFound();
+  if (!conversation || isLoading) return <>Cargando...</>;
 
   return (
     <main className="relative mobile:px-3">

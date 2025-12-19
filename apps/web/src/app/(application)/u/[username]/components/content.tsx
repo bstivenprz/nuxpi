@@ -28,7 +28,7 @@ export function Content({ username, isOwner }: { username: string, isOwner?: boo
 
       {!isOwner && (
         <Tab className="px-3" title="Multimedia">
-          <Multimedia />
+          <Multimedia username={username} />
         </Tab>
       )}
 

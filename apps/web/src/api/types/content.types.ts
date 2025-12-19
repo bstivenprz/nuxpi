@@ -11,6 +11,7 @@ export interface PublicationObject {
   shares_count: number;
   is_owner: boolean;
   is_liked: boolean;
+  is_pinned: boolean;
   created_at: number;
 }
 

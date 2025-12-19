@@ -10,6 +10,7 @@ export class PublicationObject {
   views_count: number;
   is_owner: boolean;
   is_liked: boolean;
+  is_pinned: boolean;
   created_at: number;
   @AutoMap(() => PublicProfileObject)
   author: PublicProfileObject;

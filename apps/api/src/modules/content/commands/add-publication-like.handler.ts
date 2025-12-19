@@ -1,15 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import { AddPublicationLikeCommand } from './add-publication-like.command';
 import { Like } from '../entities/like.entity';
 import { Publication } from '../entities/publication.entity';
 import { Profile } from '@/modules/profile/entities/profile.entity';
+import { PublicationLikedEvent } from '../events/publication-liked.event';
 
 @CommandHandler(AddPublicationLikeCommand)
 export class AddPublicationLikeCommandHandler
   implements ICommandHandler<AddPublicationLikeCommand, void>
 {
-  constructor() {}
+  constructor(private readonly eventBus: EventBus) {}
 
   async execute(command: AddPublicationLikeCommand): Promise<void> {
     const { current_profile_id, publication_id } = command;
@@ -27,7 +28,10 @@ export class AddPublicationLikeCommandHandler
 
     if (existing_favorite) return;
 
-    const publication = await Publication.findOneBy({ id: publication_id });
+    const publication = await Publication.findOne({
+      where: { id: publication_id },
+      relations: { author: true },
+    });
     if (!publication) return;
 
     const profile = await Profile.findOneBy({ id: current_profile_id });
@@ -40,5 +44,7 @@ export class AddPublicationLikeCommandHandler
 
     publication.likes_count = (publication.likes_count || 0) + 1;
     await publication.save();
+
+    this.eventBus.publish(new PublicationLikedEvent(publication));
   }
 }

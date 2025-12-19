@@ -55,12 +55,12 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
   const render = useMemo(() => {
     if (localAssets.length === 0) return null;
     return localAssets
-      .map((asset) => {
+      .map((asset: AssetProps) => {
         if (asset.type === "image") {
           return (
-            <SwiperSlide key={asset.public_id}>
+            <SwiperSlide className="max-w-lg" key={asset.public_id}>
               <div
-                className="relative max-w-lg w-full"
+                className="relative"
                 style={{
                   aspectRatio:
                     asset.width > 0 && asset.height > 0

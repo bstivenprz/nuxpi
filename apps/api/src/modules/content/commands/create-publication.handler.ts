@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import { CreatePublicationCommand } from './create-publication.command';
 import { Profile } from '@/modules/profile/entities/profile.entity';
@@ -16,6 +16,7 @@ import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { CloudinaryService } from '@/services/cloudinary/cloudinary.service';
 import { AssetObject } from '../objects/asset.object';
+import { PublicationPublishedEvent } from '../events/publication-published.event';
 
 @CommandHandler(CreatePublicationCommand)
 export class CreatePublicationCommandHandler
@@ -27,6 +28,7 @@ export class CreatePublicationCommandHandler
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly eventBus: EventBus,
   ) {}
 
   private readonly DELIVERY_TYPES = [
@@ -72,7 +74,7 @@ export class CreatePublicationCommandHandler
         const publication = new Publication({
           author: profile,
           caption: body.caption,
-          audience: body.audience as Audience,
+          audience: (body.audience as Audience) || Audience.EVERYONE,
         });
 
         let assets: Asset[] = [];
@@ -97,6 +99,8 @@ export class CreatePublicationCommandHandler
         }
 
         await transactionalEntityManager.save(publication);
+
+        this.eventBus.publish(new PublicationPublishedEvent(publication));
 
         return this.mapper.map(publication, Publication, PublicationObject, {
           afterMap: (source, destination) => {

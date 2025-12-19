@@ -54,7 +54,7 @@ function createImage(source: string): Promise<HTMLImageElement> {
   });
 }
 
-export async function exportCropImage(source: string, pixelCrop: any) {
+export async function exportCropImage(source: string) {
   const image = await createImage(source);
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -68,7 +68,7 @@ export async function exportCropImage(source: string, pixelCrop: any) {
 
   if (!croppedContext) return null;
 
-  croppedContext.drawImage(canvas);
+  croppedContext.drawImage(canvas, 0, 0);
 
   return croppedCanvas.toDataURL("image/jpeg");
 }

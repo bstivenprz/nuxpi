@@ -14,6 +14,8 @@ import { FeedModule } from './modules/feed/feed.module';
 import { BullModule } from '@nestjs/bull';
 import { RedisConfig } from './config/redis.config';
 import { ContentModule } from './modules/content/content.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -43,12 +45,14 @@ import { ContentModule } from './modules/content/content.module';
       }),
       inject: [RedisConfig],
     }),
+    ScheduleModule.forRoot(),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
     }),
     CqrsModule.forRoot(),
     AuthModule,
     IdentityModule.forRoot(),
+    NotificationsModule.forRoot(),
     ProfileModule.forRoot(),
     ContentModule.forRoot(),
     FeedModule.forRoot(),
