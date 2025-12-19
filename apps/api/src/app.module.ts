@@ -32,6 +32,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
         redis: {
           host: config.host,
           port: config.port,
+          password: config.password,
         },
         defaultJobOptions: {
           attempts: 3,
