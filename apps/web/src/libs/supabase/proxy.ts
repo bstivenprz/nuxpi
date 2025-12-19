@@ -19,6 +19,7 @@ export async function updateSession(request: NextRequest) {
         sameSite: isProduction ? "none" : "lax",
         secure: isProduction,
         httpOnly: true,
+        domain: isProduction ? process.env.NEXT_PUBLIC_DOMAIN : undefined,
       },
       cookies: {
         getAll() {

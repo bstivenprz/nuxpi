@@ -20,6 +20,7 @@ export async function createClient() {
         sameSite: isProduction ? "none" : "lax",
         secure: isProduction,
         httpOnly: true,
+        domain: isProduction ? ".nuxpi.com" : undefined,
       },
       cookies: {
         getAll() {
