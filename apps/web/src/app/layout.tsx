@@ -34,8 +34,8 @@ export default function RootLayout({
           text-foreground 
           antialiased 
           font-sans
-          px-4   /* 👉 PADDING GLOBAL horizontal agregado aquí */
-          py-2   /* 👉 PADDING GLOBAL vertical agregado aquí */
+          px-4 
+          py-2  
         `}
       >
         <Providers>{children}</Providers>
