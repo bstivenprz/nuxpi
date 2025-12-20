@@ -26,7 +26,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} light bg-background text-foreground antialiased font-sans`}
+        className={`
+          ${geistSans.variable} 
+          ${geistMono.variable} 
+          light 
+          bg-background 
+          text-foreground 
+          antialiased 
+          font-sans
+          px-4   /* 👉 PADDING GLOBAL horizontal agregado aquí */
+          py-2   /* 👉 PADDING GLOBAL vertical agregado aquí */
+        `}
       >
         <Providers>{children}</Providers>
       </body>
