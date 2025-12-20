@@ -13,7 +13,7 @@ import {
 import { MenuButton } from "@/components/menu-button";
 import { CounterMessages } from "@/components/counter-messages";
 
-export function MobileNav({ username }: { username?: string }) {
+export function BottomMenu({ username }: { username?: string }) {
   return (
     <div className="border-divider bg-background tablet:hidden fixed bottom-0 left-0 right-0 z-50 border-t">
       <div className="mx-auto w-full max-w-[621px]">

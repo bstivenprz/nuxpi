@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 
 import { SideMenu } from "@/components/side-menu";
-import { MobileNav } from "@/components/bottom-menu";
+import { BottomMenu } from "@/components/bottom-menu";
 import { fetchAPI } from "@/api/fetch";
 import { CurrentProfileObject } from "@/api/types/current-profile.object";
 
@@ -19,7 +19,7 @@ export default async function ApplicationLayout({ children }: PropsWithChildren)
         {children}
       </div>
 
-      <MobileNav username={profile.username} />
+      <BottomMenu username={profile.username} />
     </div>
   );
 }
