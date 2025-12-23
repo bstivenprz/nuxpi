@@ -60,10 +60,8 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
       .map((asset: AssetProps) => {
         if (asset.type === "image") {
           return (
-            // ✅ CAMBIO 1: antes era "max-w-lg". Ahora es w-full para que NO limite en mobile.
             <SwiperSlide className="w-full" key={asset.public_id}>
               <div
-                // ✅ CAMBIO 2: asegurar que el contenedor sea w-full
                 className="relative w-full"
                 style={{
                   aspectRatio:
@@ -102,9 +100,7 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
                   alt="Image"
                   width={asset.width}
                   height={asset.height}
-                  // ✅ CAMBIO 3: height "auto" -> "100%" para que llene el contenedor (con aspectRatio)
                   style={{ width: "100%", height: "100%" }}
-                  // ✅ (opcional pero recomendado) ayuda a que en mobile calcule tamaño correctamente
                   sizes="(max-width: 768px) 100vw, 621px"
                 />
               </div>
@@ -114,7 +110,6 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
 
         if (asset.type === "video") {
           return (
-            // ✅ CAMBIO 4: también w-full en video para consistencia en mobile
             <SwiperSlide className="w-full" key={asset.public_id}>
               <div
                 className="relative w-full rounded-xl border border-default-200 overflow-hidden"
@@ -155,7 +150,7 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
           align-items: center !important;
           justify-content: center !important;
           flex-direction: column !important;
-          width: 100% !important; /* ✅ asegura que el slide ocupe el ancho disponible */
+          width: 100% !important; 
         }
 
         .swiper-pagination {
@@ -174,7 +169,7 @@ export function Multimedia({ assets }: { assets: AssetProps[] }) {
       `}</style>
 
       <Swiper
-        className="w-full" // ✅ asegura ancho completo
+        className="w-full" 
         slidesPerView={1}
         spaceBetween={4}
         modules={[Pagination]}
