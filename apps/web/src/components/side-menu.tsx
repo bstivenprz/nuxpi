@@ -7,6 +7,7 @@ import {
   MessagesSquareIcon,
   PlusIcon,
   SearchIcon,
+  SendIcon,
   SparklesIcon,
   UserIcon,
   WalletMinimalIcon,
@@ -54,7 +55,7 @@ export async function SideMenu() {
           href="/messages"
           startContent={
             <CounterMessages>
-              <MessagesSquareIcon />
+              <SendIcon />
             </CounterMessages>
           }
         >
